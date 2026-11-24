@@ -1,0 +1,21 @@
+{
+  "name": "@awesome-os/installer",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Unified declarative .mts installer, DPI-aligned Lumi splash/icon stamper, and 5-OS release matrix generator for Awesome-OS (GitHub Releases + static web hosting)",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "main": "./src/index.mts",
+  "exports": {
+    ".": "./src/index.mts",
+    "./catalog": "./catalog/awesome-os-apps.mts"
+  },
+  "bin": {
+    "awesome-os-installer": "./src/cli.mts"
+  },
+  "scripts": {
+    "test": "node --test test/installer.test.mts"
+  }
+}

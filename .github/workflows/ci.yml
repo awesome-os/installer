@@ -1,0 +1,40 @@
+name: CI & Release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  test-and-stamp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Run @awesome-os/installer test suite
+        run: node --test test/installer.test.mts
+
+      - name: Stamp full Awesome-OS web + GitHub installer catalog
+        run: |
+          node src/cli.mts stamp --out ./dist-web --web-host https://awesome-os.com/downloads
+          sh -n dist-web/sectium-browser/install.sh
+          ls -la dist-web/
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          tar --zstd -cf "awesome-os-installer-catalog-${TAG}.tar.zst" -C dist-web .
+          sha256sum "awesome-os-installer-catalog-${TAG}.tar.zst" > SHA256SUMS.txt
+          gh release create "$TAG" "awesome-os-installer-catalog-${TAG}.tar.zst" SHA256SUMS.txt \
+            --title "@awesome-os/installer ${TAG}" \
+            --notes "Unified declarative .mts installer & pixel-aligned Lumi splash stamper for GitHub Releases and awesome-os.com static hosting."

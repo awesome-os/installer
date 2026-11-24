@@ -1,0 +1,141 @@
+/**
+ * @file catalog/awesome-os-apps.mts
+ * @description Canonical Awesome-OS `.mts` release matrix catalog.
+ * Flip `downloadBaseUrl` (or pass `--web-host https://awesome-os.com/downloads`)
+ * to stamp installers for GitHub Releases OR static self-hosted web distribution
+ * with zero GitHub rebuilds required.
+ */
+
+import { defineReleaseMatrix, type ReleaseMatrixDef } from '../src/index.mts';
+
+const LUMI_GUI_SPLASH = (title: string, subtitle: string) => ({
+  enabled: true,
+  title,
+  subtitle,
+  iconAsset: 'lumi-white-dragon.ico',
+  iconSizePx: 64,
+  widthPx: 460,
+  heightPx: 220,
+  dpiAware: true,
+});
+
+export const AWESOME_OS_CATALOG: readonly ReleaseMatrixDef[] = [
+  defineReleaseMatrix({
+    id: 'sectium-browser',
+    displayName: 'Sectium Browser',
+    repo: 'awesome-os/sectium-browser',
+    version: '0.7.2',
+    kind: 'gui-app',
+    binaryName: 'sectium-browser',
+    description: 'Sovereign Chromium 158+ browser with AtlasKV Search & nudge-free Google',
+    targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64'],
+    casAssets: {
+      win64: 'electron-win64.tar.zst',
+      'linux-x64': 'electron-linux-x64.tar.zst',
+      'linux-arm64': 'electron-linux-arm64.tar.zst',
+      'macos-arm64': 'electron-macos-arm64.tar.zst',
+    },
+    splash: LUMI_GUI_SPLASH('Sectium Browser', 'Chromium 158+  |  AtlasKV Sovereign Search'),
+  }),
+  defineReleaseMatrix({
+    id: 'code-oss',
+    displayName: 'Awesome-OS Code - OSS',
+    repo: 'awesome-os/code-oss',
+    version: '0.2.0',
+    kind: 'gui-app',
+    binaryName: 'code-oss',
+    description: 'Telemetry-free MIT Code - OSS with Wave 2 TypeScript 6.0.3 & 6 studio extensions',
+    targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64'],
+    casAssets: {
+      win64: 'code-oss-app-win64.tar.zst',
+      'linux-x64': 'code-oss-app-linux-x64.tar.zst',
+    },
+    splash: LUMI_GUI_SPLASH('Awesome-OS Code - OSS', 'b8g-ghost CAS  |  Wave 2 TypeScript 6.0.3'),
+  }),
+  defineReleaseMatrix({
+    id: 'godot',
+    displayName: 'Awesome-OS Godot 4',
+    repo: 'awesome-os/godot',
+    version: '0.1.0',
+    kind: 'gui-app',
+    binaryName: 'godot',
+    description: 'Rolling-latest MIT Godot 4.7.2 hydrated from b8g-ghost cas-v1',
+    targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64', 'wasm32-wasi'],
+    casAssets: { win64: 'godot-win64.tar.zst', 'linux-x64': 'godot-linux-x64.tar.zst' },
+    splash: LUMI_GUI_SPLASH('Awesome-OS Godot 4', 'b8g-ghost CAS  |  Rolling Latest'),
+  }),
+  defineReleaseMatrix({
+    id: 'blender',
+    displayName: 'Awesome-OS Blender',
+    repo: 'awesome-os/blender',
+    version: '0.1.0',
+    kind: 'gui-app',
+    binaryName: 'blender',
+    description: 'Debloated rolling-latest Blender 5.3.0 hydrated from b8g-ghost cas-v1',
+    targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64'],
+    casAssets: { win64: 'blender-win64.tar.zst', 'linux-x64': 'blender-linux-x64.tar.zst' },
+    splash: LUMI_GUI_SPLASH('Awesome-OS Blender', 'b8g-ghost CAS  |  Zero Installer'),
+  }),
+  defineReleaseMatrix({
+    id: 'obs',
+    displayName: 'Awesome-OS OBS Studio',
+    repo: 'awesome-os/obs',
+    version: '0.1.0',
+    kind: 'gui-app',
+    binaryName: 'obs',
+    description: 'Portable rolling-latest OBS Studio 33.0.3 hydrated from b8g-ghost cas-v1',
+    targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64'],
+    casAssets: { win64: 'obs-win64.tar.zst' },
+    splash: LUMI_GUI_SPLASH('Awesome-OS OBS Studio', 'b8g-ghost CAS  |  Zero Installer'),
+  }),
+  defineReleaseMatrix({
+    id: 'brave',
+    displayName: 'Awesome-OS Brave',
+    repo: 'awesome-os/brave',
+    version: '0.1.0',
+    kind: 'gui-app',
+    binaryName: 'brave',
+    description: 'Debloated Shields-only Brave (zero crypto/Rewards/updater)',
+    targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64'],
+    casAssets: { win64: 'brave-win64.tar.zst' },
+    splash: LUMI_GUI_SPLASH('Awesome-OS Brave', 'Shields-Only  |  b8g-ghost CAS'),
+  }),
+  defineReleaseMatrix({
+    id: 'node',
+    displayName: 'Awesome-OS Node.js',
+    repo: 'awesome-os/node',
+    version: '0.3.0',
+    kind: 'cli-runtime',
+    binaryName: 'node',
+    description: 'Zero-installer native 5-target Node 27 / 26 launcher over b8g-ghost cas-v1',
+    targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64', 'wasm32-wasi'],
+    casAssets: {
+      win64: 'node-win64.tar.zst',
+      'linux-x64': 'node-linux-x64.tar.zst',
+      'linux-arm64': 'node-linux-arm64.tar.zst',
+      'macos-arm64': 'node-macos-arm64.tar.zst',
+    },
+  }),
+  defineReleaseMatrix({
+    id: 'dotnet',
+    displayName: 'Awesome-OS .NET 11 SDK',
+    repo: 'awesome-os/dotnet',
+    version: '0.2.0',
+    kind: 'cli-runtime',
+    binaryName: 'dotnet',
+    description: 'Zero-installer 5-target .NET 11 SDK launcher over b8g-ghost cas-v1',
+    targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64', 'wasm32-wasi'],
+    casAssets: { win64: 'dotnet-sdk-win64.tar.zst', 'linux-x64': 'dotnet-sdk-linux-x64.tar.zst' },
+  }),
+  defineReleaseMatrix({
+    id: 'powershell',
+    displayName: 'Awesome-OS PowerShell 7.7',
+    repo: 'awesome-os/powershell',
+    version: '0.2.0',
+    kind: 'cli-runtime',
+    binaryName: 'pwsh',
+    description: 'Zero-cmd.exe native C11 PowerShell 7.7 launcher (verbatim GetCommandLineW)',
+    targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64', 'wasm32-wasi'],
+    casAssets: { win64: 'powershell-win64.tar.zst' },
+  }),
+];
