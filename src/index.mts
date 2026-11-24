@@ -78,14 +78,21 @@ export function renderInstallPs1(def: ReleaseMatrixDef, overrideBaseUrl?: string
   const isGui = def.kind === 'gui-app';
   const shortcutBlock = isGui
     ? `
-# Create Start Menu shortcut
+# Create Start Menu shortcut with explicit icon binding
 try {
+  $iconPath = Join-Path $InstallDir "${bin}.ico"
+  try {
+    Invoke-WebRequest -UseBasicParsing -Uri "$BaseUrl/${bin}.ico" -OutFile $iconPath -ErrorAction Stop
+  } catch {
+    Remove-Item -Force -LiteralPath $iconPath -ErrorAction SilentlyContinue
+  }
   $startMenu = Join-Path $env:APPDATA "Microsoft\\Windows\\Start Menu\\Programs"
   $lnkPath = Join-Path $startMenu "${def.displayName}.lnk"
   $ws = New-Object -ComObject WScript.Shell
   $sc = $ws.CreateShortcut($lnkPath)
   $sc.TargetPath = $exePath
   $sc.WorkingDirectory = $InstallDir
+  $sc.IconLocation = if (Test-Path -LiteralPath $iconPath) { "$iconPath,0" } else { "$exePath,0" }
   $sc.Description = "${def.description.replace(/"/g, "'")}"
   $sc.Save()
   Write-Host "[${def.displayName}] Start Menu shortcut: $lnkPath" -ForegroundColor Green
