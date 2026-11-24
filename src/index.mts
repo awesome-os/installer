@@ -101,16 +101,13 @@ try {
 }`
     : '';
 
-  return `#Requires -Version 5.1
-# ${def.displayName} (${def.version}) — Stamped by @awesome-os/installer (CAS v11)
+  return `# ${def.displayName} (${def.version}) — Stamped by @awesome-os/installer (CAS v11)
 # Usage: irm ${base}/install.ps1 | iex
-param(
-  [string]$InstallDir = "$env:LOCALAPPDATA\\AwesomeOS\\${def.id}",
-  [string]$BaseUrl = "${base}",
-  [string]$CasRoot = $(if ($env:B8G_GHOST_CACHE_DIR) { $env:B8G_GHOST_CACHE_DIR } else { Join-Path $HOME ".b8g\\cas" })
-)
-
 $ErrorActionPreference = 'Stop'
+$InstallDir = if ($env:AWESOME_OS_INSTALL_DIR) { $env:AWESOME_OS_INSTALL_DIR } else { "$env:LOCALAPPDATA\\AwesomeOS\\${def.id}" }
+$BaseUrl = if ($env:AWESOME_OS_BASE_URL) { $env:AWESOME_OS_BASE_URL } else { "${base}" }
+$CasRoot = if ($env:B8G_GHOST_CACHE_DIR) { $env:B8G_GHOST_CACHE_DIR } else { Join-Path $HOME ".b8g\\cas" }
+
 Write-Host "[${def.displayName}] Installing ${def.version} -> $InstallDir ..." -ForegroundColor Cyan
 New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
 
