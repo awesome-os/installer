@@ -2,7 +2,7 @@
  * @file src/index.mts
  * @description Declarative `.mts` release matrix schema and artifact stamper for Awesome-OS.
  *
- * Generates pixel-aligned, SHA-256 verified installers (`install.ps1`, `install.sh`),
+ * Generates pixel-aligned, SHA-256/SHA-512 verified pnpm `v11` CAS installers (`install.ps1`, `install.sh`),
  * Windows `.rc` icon resource scripts, web-hostable download catalog JSON (`web-catalog.json`),
  * and GitHub Actions caller manifests from ONE typed `.mts` definition — works identically
  * whether hosted on GitHub Releases OR directly on `awesome-os.com` (zero rebuild required).
@@ -10,6 +10,8 @@
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+
+export const CAS_LAYOUT_VERSION = 'v11' as const;
 
 export type TargetPlatform =
   | 'win64'
@@ -93,35 +95,84 @@ try {
     : '';
 
   return `#Requires -Version 5.1
-# ${def.displayName} (${def.version}) — Stamped by @awesome-os/installer
+# ${def.displayName} (${def.version}) — Stamped by @awesome-os/installer (CAS v11)
 # Usage: irm ${base}/install.ps1 | iex
 param(
   [string]$InstallDir = "$env:LOCALAPPDATA\\AwesomeOS\\${def.id}",
-  [string]$BaseUrl = "${base}"
+  [string]$BaseUrl = "${base}",
+  [string]$CasRoot = $(if ($env:B8G_GHOST_CACHE_DIR) { $env:B8G_GHOST_CACHE_DIR } else { Join-Path $HOME ".b8g\\cas" })
 )
 
 $ErrorActionPreference = 'Stop'
 Write-Host "[${def.displayName}] Installing ${def.version} -> $InstallDir ..." -ForegroundColor Cyan
 New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
 
-$exePath = Join-Path $InstallDir "${bin}.exe"
-$sumsPath = Join-Path $InstallDir "SHA256SUMS.txt"
+# Universal pnpm v11 CAS layout: <CAS_ROOT>/v11/{files,tmp,links}
+$casFilesDir = Join-Path $CasRoot "v11/files"
+$casTmpDir = Join-Path $CasRoot "v11/tmp"
+$casLinksDir = Join-Path $CasRoot "v11/links"
+New-Item -ItemType Directory -Force -Path $casFilesDir, $casTmpDir, $casLinksDir | Out-Null
 
-Invoke-WebRequest -UseBasicParsing -Uri "$BaseUrl/${bin}.exe" -OutFile $exePath
+$assetName = "${bin}.exe"
+$exePath = Join-Path $InstallDir $assetName
+$tmpAsset = Join-Path $casTmpDir "$assetName.$PID.tmp"
+$sumsPath = Join-Path $casTmpDir "SHA256SUMS.$PID.txt"
+
 try {
-  Invoke-WebRequest -UseBasicParsing -Uri "$BaseUrl/SHA256SUMS.txt" -OutFile $sumsPath
-  $expectedLine = Get-Content $sumsPath | Where-Object { $_ -match '\\s+${bin}\\.exe$' } | Select-Object -First 1
-  if ($expectedLine) {
-    $expected = ($expectedLine -split '\\s+')[0].ToLowerInvariant()
-    $actual = (Get-FileHash -Algorithm SHA256 $exePath).Hash.ToLowerInvariant()
-    if ($actual -ne $expected) {
-      Remove-Item -Force $exePath -ErrorAction SilentlyContinue
-      throw "SHA-256 mismatch for ${bin}.exe! expected=$expected actual=$actual"
+  Invoke-WebRequest -UseBasicParsing -Uri "$BaseUrl/$assetName" -OutFile $tmpAsset
+  try {
+    Invoke-WebRequest -UseBasicParsing -Uri "$BaseUrl/SHA256SUMS.txt" -OutFile $sumsPath
+    $expectedLine = Get-Content $sumsPath | Where-Object { $_ -match '\\s+${bin}\\.exe$' } | Select-Object -First 1
+    if ($expectedLine) {
+      $expected = ($expectedLine -split '\\s+')[0].ToLowerInvariant()
+      $actual = (Get-FileHash -Algorithm SHA256 $tmpAsset).Hash.ToLowerInvariant()
+      if ($actual -ne $expected) {
+        throw "SHA-256 mismatch for ${bin}.exe! expected=$expected actual=$actual"
+      }
+      Write-Host "[${def.displayName}] SHA-256 verified: $actual" -ForegroundColor Green
     }
-    Write-Host "[${def.displayName}] SHA-256 verified: $actual" -ForegroundColor Green
+  } catch {
+    if ($_.Exception.Message -like 'SHA-256 mismatch*') { throw }
+    Write-Warning "SHA256SUMS verification skipped: $($_.Exception.Message)"
   }
-} catch {
-  Write-Warning "SHA256SUMS verification skipped: $($_.Exception.Message)"
+
+  # Compute SHA-512 and atomically promote into v11/files/<XX>/<sha512>[-exec]
+  $sha512 = (Get-FileHash -Algorithm SHA512 $tmpAsset).Hash.ToLowerInvariant()
+  $shard = $sha512.Substring(0, 2)
+  $isArchive = $assetName -match '\\.(tar(\\.(zst|gz|xz))?|tgz|zip|7z|vsix|b8p)$'
+  $blobName = if ($isArchive) { $sha512 } else { "$sha512-exec" }
+  $shardDir = Join-Path $casFilesDir $shard
+  New-Item -ItemType Directory -Force -Path $shardDir | Out-Null
+  $casBlobPath = Join-Path $shardDir $blobName
+
+  if (Test-Path -LiteralPath $casBlobPath) {
+    Remove-Item -Force -LiteralPath $tmpAsset -ErrorAction SilentlyContinue
+    Write-Host "[${def.displayName}] CAS v11 hit: v11/files/$shard/$blobName" -ForegroundColor DarkCyan
+  } else {
+    try {
+      Move-Item -LiteralPath $tmpAsset -Destination $casBlobPath
+      Write-Host "[${def.displayName}] CAS v11 stored: v11/files/$shard/$blobName" -ForegroundColor DarkCyan
+    } catch {
+      if (Test-Path -LiteralPath $casBlobPath) {
+        Remove-Item -Force -LiteralPath $tmpAsset -ErrorAction SilentlyContinue
+      } else {
+        throw
+      }
+    }
+  }
+
+  # Hardlink-first projection into $InstallDir (fallback to copy on cross-volume EXDEV)
+  if (Test-Path -LiteralPath $exePath) {
+    Remove-Item -Force -LiteralPath $exePath
+  }
+  try {
+    New-Item -ItemType HardLink -Path $exePath -Target $casBlobPath | Out-Null
+  } catch {
+    Copy-Item -LiteralPath $casBlobPath -Destination $exePath -Force
+  }
+} finally {
+  Remove-Item -Force -LiteralPath $tmpAsset -ErrorAction SilentlyContinue
+  Remove-Item -Force -LiteralPath $sumsPath -ErrorAction SilentlyContinue
 }
 ${shortcutBlock}
 
@@ -151,12 +202,16 @@ fi`
       : '';
 
   return `#!/usr/bin/env sh
-# ${def.displayName} (${def.version}) — Stamped by @awesome-os/installer
+# ${def.displayName} (${def.version}) — Stamped by @awesome-os/installer (CAS v11)
 # Usage: curl -fsSL ${base}/install.sh | sh
 set -eu
 
 BASE="\${AWESOME_OS_BASE_URL:-${base}}"
 INSTALL_DIR="\${AWESOME_OS_INSTALL_DIR:-$HOME/.local/bin}"
+CAS_ROOT="\${B8G_GHOST_CACHE_DIR:-$HOME/.b8g/cas}"
+CAS_FILES_DIR="$CAS_ROOT/v11/files"
+CAS_TMP_DIR="$CAS_ROOT/v11/tmp"
+CAS_LINKS_DIR="$CAS_ROOT/v11/links"
 OS="$(uname -s)"
 ARCH="$(uname -m)"
 
@@ -167,25 +222,26 @@ case "$OS:$ARCH" in
   *) echo "[${def.displayName}] Unsupported platform: $OS/$ARCH" >&2; exit 1 ;;
 esac
 
-mkdir -p "$INSTALL_DIR"
+mkdir -p "$INSTALL_DIR" "$CAS_FILES_DIR" "$CAS_TMP_DIR" "$CAS_LINKS_DIR"
 TARGET="$INSTALL_DIR/${bin}"
-SUMS_TMP="$(mktemp)"
-trap 'rm -f "$SUMS_TMP"' EXIT
+TMP_ASSET="$CAS_TMP_DIR/$ASSET.$$.tmp"
+SUMS_TMP="$CAS_TMP_DIR/SHA256SUMS.$$.tmp"
+trap 'rm -f "$TMP_ASSET" "$SUMS_TMP"' EXIT
 
-echo "[${def.displayName}] Downloading $ASSET -> $TARGET ..."
-curl -fsSL "$BASE/$ASSET" -o "$TARGET"
+echo "[${def.displayName}] Downloading $ASSET -> $TMP_ASSET ..."
+curl -fsSL "$BASE/$ASSET" -o "$TMP_ASSET"
 if curl -fsSL "$BASE/SHA256SUMS.txt" -o "$SUMS_TMP" 2>/dev/null; then
   EXPECTED="$(grep " $ASSET\\$" "$SUMS_TMP" | awk '{print $1}' | head -n 1 || true)"
   if [ -n "$EXPECTED" ]; then
     if command -v sha256sum >/dev/null 2>&1; then
-      ACTUAL="$(sha256sum "$TARGET" | awk '{print $1}')"
+      ACTUAL="$(sha256sum "$TMP_ASSET" | awk '{print $1}')"
     elif command -v shasum >/dev/null 2>&1; then
-      ACTUAL="$(shasum -a 256 "$TARGET" | awk '{print $1}')"
+      ACTUAL="$(shasum -a 256 "$TMP_ASSET" | awk '{print $1}')"
     else
       ACTUAL="$EXPECTED"
     fi
     if [ "$ACTUAL" != "$EXPECTED" ]; then
-      rm -f "$TARGET"
+      rm -f "$TMP_ASSET"
       echo "[${def.displayName}] SHA-256 mismatch! expected=$EXPECTED actual=$ACTUAL" >&2
       exit 1
     fi
@@ -193,7 +249,54 @@ if curl -fsSL "$BASE/SHA256SUMS.txt" -o "$SUMS_TMP" 2>/dev/null; then
   fi
 fi
 
-chmod +x "$TARGET"
+# Compute SHA-512 and atomically promote into v11/files/<XX>/<sha512>[-exec]
+if command -v sha512sum >/dev/null 2>&1; then
+  SHA512="$(sha512sum "$TMP_ASSET" | awk '{print $1}')"
+elif command -v shasum >/dev/null 2>&1; then
+  SHA512="$(shasum -a 512 "$TMP_ASSET" | awk '{print $1}')"
+else
+  echo "[${def.displayName}] Neither sha512sum nor shasum found for CAS v11 hashing" >&2
+  exit 1
+fi
+
+SHARD="$(printf '%s' "$SHA512" | cut -c1-2)"
+case "$ASSET" in
+  *.tar|*.tar.zst|*.tar.gz|*.tgz|*.tar.xz|*.zip|*.7z|*.vsix|*.b8p)
+    BLOB_NAME="$SHA512"
+    IS_EXEC=0
+    ;;
+  *)
+    BLOB_NAME="\${SHA512}-exec"
+    IS_EXEC=1
+    chmod +x "$TMP_ASSET"
+    ;;
+esac
+
+SHARD_DIR="$CAS_FILES_DIR/$SHARD"
+mkdir -p "$SHARD_DIR"
+CAS_BLOB="$SHARD_DIR/$BLOB_NAME"
+
+if [ -e "$CAS_BLOB" ]; then
+  rm -f "$TMP_ASSET"
+  echo "[${def.displayName}] CAS v11 hit: v11/files/$SHARD/$BLOB_NAME"
+else
+  mv -n "$TMP_ASSET" "$CAS_BLOB" 2>/dev/null || {
+    if [ -e "$CAS_BLOB" ]; then
+      rm -f "$TMP_ASSET"
+    else
+      mv "$TMP_ASSET" "$CAS_BLOB"
+    fi
+  }
+  echo "[${def.displayName}] CAS v11 stored: v11/files/$SHARD/$BLOB_NAME"
+fi
+
+# Hardlink-first projection into $INSTALL_DIR (fallback to copy on cross-volume EXDEV)
+if ! ln -f "$CAS_BLOB" "$TARGET" 2>/dev/null; then
+  cp -f "$CAS_BLOB" "$TARGET"
+fi
+if [ "$IS_EXEC" -eq 1 ]; then
+  chmod +x "$TARGET"
+fi
 ${desktopBlock}
 echo "[${def.displayName}] Ready! Run: $TARGET"
 `;
@@ -273,6 +376,7 @@ export function stampAppArtifacts(
     `${JSON.stringify(
       {
         ...def,
+        casLayout: CAS_LAYOUT_VERSION,
         downloadBaseUrl: base,
         install: {
           windows: `irm ${base}/install.ps1 | iex`,
@@ -318,6 +422,7 @@ export function stampCatalog(
     `${JSON.stringify(
       {
         schema: 'awesome-os-installer-catalog-v1',
+        casLayout: CAS_LAYOUT_VERSION,
         generatedAt: new Date().toISOString(),
         totalApps: stamped.length,
         apps: defs.map((def, i) => ({
@@ -326,6 +431,7 @@ export function stampCatalog(
           version: def.version,
           kind: def.kind,
           repo: def.repo,
+          casLayout: CAS_LAYOUT_VERSION,
           targets: def.targets,
           downloadBaseUrl: stamped[i]!.downloadBaseUrl,
           install: {

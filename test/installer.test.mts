@@ -63,4 +63,50 @@ describe('@awesome-os/installer', () => {
     assert.ok(ps1.includes('node.exe'));
     assert.ok(sh.includes('node-linux-arm64'));
   });
+
+  it('wires install.ps1 and install.sh to the universal pnpm v11 CAS layout with SHA-512 sharding and hardlink projection', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'awesome-os-installer-v11-'));
+    try {
+      const result = stampCatalog(AWESOME_OS_CATALOG, tmp);
+      const pnpmEntry = result.stamped.find((s) => s.id === 'pnpm')!;
+      assert.ok(pnpmEntry);
+
+      const ps1 = readFileSync(join(pnpmEntry.outDir, 'install.ps1'), 'utf8');
+      assert.ok(ps1.includes('B8G_GHOST_CACHE_DIR'));
+      assert.ok(ps1.includes('.b8g\\cas'));
+      assert.ok(ps1.includes('v11/files'));
+      assert.ok(ps1.includes('v11/tmp'));
+      assert.ok(ps1.includes('v11/links'));
+      assert.ok(ps1.includes('Get-FileHash -Algorithm SHA512'));
+      assert.ok(ps1.includes('$sha512.Substring(0, 2)'));
+      assert.ok(ps1.includes('$sha512-exec'));
+      assert.ok(ps1.includes('Test-Path -LiteralPath $casBlobPath'));
+      assert.ok(ps1.includes('New-Item -ItemType HardLink'));
+      assert.ok(ps1.includes('Copy-Item -LiteralPath $casBlobPath -Destination $exePath'));
+
+      const sh = readFileSync(join(pnpmEntry.outDir, 'install.sh'), 'utf8');
+      assert.ok(sh.includes('B8G_GHOST_CACHE_DIR:-$HOME/.b8g/cas'));
+      assert.ok(sh.includes('v11/files'));
+      assert.ok(sh.includes('v11/tmp'));
+      assert.ok(sh.includes('v11/links'));
+      assert.ok(sh.includes('sha512sum'));
+      assert.ok(sh.includes('shasum -a 512'));
+      assert.ok(sh.includes('cut -c1-2'));
+      assert.ok(sh.includes('${SHA512}-exec'));
+      assert.ok(sh.includes('if [ -e "$CAS_BLOB" ]'));
+      assert.ok(sh.includes('ln -f "$CAS_BLOB" "$TARGET"'));
+      assert.ok(sh.includes('cp -f "$CAS_BLOB" "$TARGET"'));
+
+      const manifest = JSON.parse(
+        readFileSync(join(pnpmEntry.outDir, 'release-manifest.json'), 'utf8'),
+      );
+      assert.equal(manifest.casLayout, 'v11');
+
+      const webCatalog = JSON.parse(readFileSync(result.catalogJsonPath, 'utf8'));
+      assert.equal(webCatalog.casLayout, 'v11');
+      assert.ok(webCatalog.apps.every((a: { casLayout?: string }) => a.casLayout === 'v11'));
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
 });
