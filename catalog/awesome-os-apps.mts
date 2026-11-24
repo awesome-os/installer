@@ -104,10 +104,10 @@ export const AWESOME_OS_CATALOG: readonly ReleaseMatrixDef[] = [
     id: 'node',
     displayName: 'Awesome-OS Node.js',
     repo: 'awesome-os/node',
-    version: '0.3.0',
+    version: '0.4.0',
     kind: 'cli-runtime',
     binaryName: 'node',
-    description: 'Zero-installer native 5-target Node 27 / 26 launcher over b8g-ghost cas-v1',
+    description: 'Zero-installer native 5-target Node 27 / 26 launcher over b8g-ghost cas-v1 + libuv v0.1.0 + libv8_monolith v0.2.0',
     targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64', 'wasm32-wasi'],
     casAssets: {
       win64: 'node-win64.tar.zst',
