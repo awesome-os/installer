@@ -1,0 +1,112 @@
+{
+  "schema": "holo-compiler-lockfile-v1",
+  "abiMagic": "0x33564742",
+  "casLayout": "v11",
+  "repo": "awesome-os/installer",
+  "targets": [
+    "win64",
+    "linux-x64",
+    "linux-arm64",
+    "macos-arm64",
+    "wasm32-wasi"
+  ],
+  "generatedAt": "2026-11-24T23:53:02.473Z",
+  "dependencies": [
+    {
+      "id": "awesome-os/installer/awesome-os-installer-catalog-v0.1.0.tar.zst",
+      "kind": "object",
+      "version": "v0.1.0",
+      "target": "any",
+      "sha512": "910dc06ad728d8080fbab757c5a0d258c0a045b6df8838d8eb3a6209f7d227b38e59e60f238f32e8db7ec4d66346ec6eb70f4f5e11eb4c662f0923a8cfb9abcb",
+      "size": 6292,
+      "executable": false,
+      "blob": "v11/files/91/910dc06ad728d8080fbab757c5a0d258c0a045b6df8838d8eb3a6209f7d227b38e59e60f238f32e8db7ec4d66346ec6eb70f4f5e11eb4c662f0923a8cfb9abcb",
+      "url": "https://github.com/awesome-os/installer/releases/download/v0.1.0/awesome-os-installer-catalog-v0.1.0.tar.zst",
+      "dependencies": []
+    },
+    {
+      "id": "awesome-os/installer/awesome-os-installer-catalog-v0.2.0.tar.zst",
+      "kind": "object",
+      "version": "v0.2.0",
+      "target": "any",
+      "sha512": "99654776de0ebc2571167a69c5556e96124617bfd02ed497018f10ef74b5608c80968f396bfbf029639d3c11e2dbdb0cd48861d7518284398da95a33ca4ea6c3",
+      "size": 10128,
+      "executable": false,
+      "blob": "v11/files/99/99654776de0ebc2571167a69c5556e96124617bfd02ed497018f10ef74b5608c80968f396bfbf029639d3c11e2dbdb0cd48861d7518284398da95a33ca4ea6c3",
+      "url": "https://github.com/awesome-os/installer/releases/download/v0.2.0/awesome-os-installer-catalog-v0.2.0.tar.zst",
+      "dependencies": []
+    },
+    {
+      "id": "awesome-os/installer/awesome-os-installer-catalog-v0.2.2.tar.zst",
+      "kind": "object",
+      "version": "v0.2.2",
+      "target": "any",
+      "sha512": "80db849cdd8393d5db0737ab26be561ccae3f9cd269b0584d94a081e03de76164d7f82697544ab7056206d99975108013ec387356243ac133b5abb24e877089e",
+      "size": 10651,
+      "executable": false,
+      "blob": "v11/files/80/80db849cdd8393d5db0737ab26be561ccae3f9cd269b0584d94a081e03de76164d7f82697544ab7056206d99975108013ec387356243ac133b5abb24e877089e",
+      "url": "https://github.com/awesome-os/installer/releases/download/v0.2.2/awesome-os-installer-catalog-v0.2.2.tar.zst",
+      "dependencies": []
+    },
+    {
+      "id": "awesome-os/installer/awesome-os-installer-catalog-v0.2.3.tar.zst",
+      "kind": "object",
+      "version": "v0.2.3",
+      "target": "any",
+      "sha512": "0699f0e0b988f38ac4772f8952a9b8047bd56849d98b44a331d524f25791006432e8dddb65779d08ac7652375ae6443e26fb33da1388e88becfafbabda6c60ef",
+      "size": 10655,
+      "executable": false,
+      "blob": "v11/files/06/0699f0e0b988f38ac4772f8952a9b8047bd56849d98b44a331d524f25791006432e8dddb65779d08ac7652375ae6443e26fb33da1388e88becfafbabda6c60ef",
+      "url": "https://github.com/awesome-os/installer/releases/download/v0.2.3/awesome-os-installer-catalog-v0.2.3.tar.zst",
+      "dependencies": []
+    },
+    {
+      "id": "awesome-os/installer/SHA256SUMS.txt",
+      "kind": "object",
+      "version": "v0.1.0",
+      "target": "any",
+      "sha512": "931abfcf952f73ad29c86bcafeebfb7a34d1415cc74e0878a2d641f377867cb9e7f971bdf56d950e2946731a101b2a5d104c6a866649b8721a1b8a4cc4aff1c7",
+      "size": 110,
+      "executable": false,
+      "blob": "v11/files/93/931abfcf952f73ad29c86bcafeebfb7a34d1415cc74e0878a2d641f377867cb9e7f971bdf56d950e2946731a101b2a5d104c6a866649b8721a1b8a4cc4aff1c7",
+      "url": "https://github.com/awesome-os/installer/releases/download/v0.1.0/SHA256SUMS.txt",
+      "dependencies": []
+    },
+    {
+      "id": "awesome-os/installer/SHA256SUMS.txt",
+      "kind": "object",
+      "version": "v0.2.0",
+      "target": "any",
+      "sha512": "a37311e30f912f1d01a39394fd8ff2b5292b39b31bdc3f3a0d0752f5def8f615078ea3da4c4c11c27a8164addf6ac6bb755d885a83ad6886308cae483809d68d",
+      "size": 110,
+      "executable": false,
+      "blob": "v11/files/a3/a37311e30f912f1d01a39394fd8ff2b5292b39b31bdc3f3a0d0752f5def8f615078ea3da4c4c11c27a8164addf6ac6bb755d885a83ad6886308cae483809d68d",
+      "url": "https://github.com/awesome-os/installer/releases/download/v0.2.0/SHA256SUMS.txt",
+      "dependencies": []
+    },
+    {
+      "id": "awesome-os/installer/SHA256SUMS.txt",
+      "kind": "object",
+      "version": "v0.2.2",
+      "target": "any",
+      "sha512": "d4efd9ec7b0789c2d3dcbce6252d4ded9fc5112c9f4a8cffd987a6323fb456dbf4998857df1af8966fffe382d5a46219608b3f31b2027048400d30da2331972e",
+      "size": 110,
+      "executable": false,
+      "blob": "v11/files/d4/d4efd9ec7b0789c2d3dcbce6252d4ded9fc5112c9f4a8cffd987a6323fb456dbf4998857df1af8966fffe382d5a46219608b3f31b2027048400d30da2331972e",
+      "url": "https://github.com/awesome-os/installer/releases/download/v0.2.2/SHA256SUMS.txt",
+      "dependencies": []
+    },
+    {
+      "id": "awesome-os/installer/SHA256SUMS.txt",
+      "kind": "object",
+      "version": "v0.2.3",
+      "target": "any",
+      "sha512": "f08f81e63be375fb3ecfcd06eece8da863028015d96c836fc1e7db8fe8eac62bb0eb9d1988def0f0ae3ba35568c2d40c5de29f9e30587516252a9f31c0109dce",
+      "size": 110,
+      "executable": false,
+      "blob": "v11/files/f0/f08f81e63be375fb3ecfcd06eece8da863028015d96c836fc1e7db8fe8eac62bb0eb9d1988def0f0ae3ba35568c2d40c5de29f9e30587516252a9f31c0109dce",
+      "url": "https://github.com/awesome-os/installer/releases/download/v0.2.3/SHA256SUMS.txt",
+      "dependencies": []
+    }
+  ]
+}
