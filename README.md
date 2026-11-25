@@ -23,3 +23,13 @@ node src/cli.mts stamp --out ./dist-web --web-host https://awesome-os.com/downlo
 ```bash
 node --test test/installer.test.mts
 ```
+
+## Quick Install & Run (Windows / Linux / macOS)
+
+```sh
+# Install / hydrate from v11 CAS via holo-pm
+holo-pm install repository://github.com/awesome-os/installer@main
+
+# Or project & run directly via holo-project (0-byte hardlink)
+holo-project "project://node/installer?from=repository://github.com/awesome-os/installer@main"
+```
