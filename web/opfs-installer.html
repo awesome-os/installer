@@ -620,6 +620,7 @@
 
           <div class="preset-bar">
             <button type="button" class="preset-btn" data-preset="dev">Developer Workstation</button>
+            <button type="button" class="preset-btn" data-preset="ai">AI / Local LLM Stack</button>
             <button type="button" class="preset-btn" data-preset="creator">Creator &amp; VTuber Studio</button>
             <button type="button" class="preset-btn" data-preset="full">Everything (Full Suite)</button>
             <button type="button" class="preset-btn" data-preset="minimal">Minimal Core Only</button>
@@ -743,6 +744,9 @@
       { id: 'ladybird', name: 'Ladybird (B8G Fork)', repo: 'awesome-os/ladybird', version: '0.1.0', desc: 'Independent engine + B8G C11 bridges', checked: false },
       { id: 'node', name: 'Awesome-OS Node.js', repo: 'awesome-os/node', version: '0.4.0', desc: 'V8 16+ monolith + libuv over v11 CAS', checked: true },
       { id: 'pnpm', name: 'CAS pnpm v12', repo: 'awesome-os/pnpm', version: '12.23.0', desc: 'Zero-copy v11 hardlink package manager', checked: true },
+      { id: 'colibri', name: 'Colibri MoE Engine', repo: 'awesome-os/colibri', version: '0.1.0', desc: 'Pure-C Vulkan/CUDA/Metal/XDNA + NVMe MoE streaming', checked: false },
+      { id: 'llama-cpp', name: 'llama.cpp (GGUF)', repo: 'awesome-os/llama.cpp', version: '0.1.0', desc: 'Local GGUF inference & OpenAI-compatible server', checked: false },
+      { id: 'vllm', name: 'vLLM Serving', repo: 'awesome-os/vllm', version: '0.1.0', desc: 'PagedAttention multi-GPU production LLM serving', checked: false },
     ];
 
     const SLIDES = [
@@ -1283,6 +1287,7 @@
 
     const PRESETS = {
       dev: ['holo-pm', 'sectium-browser', 'code-oss', 'node', 'pnpm'],
+      ai: ['holo-pm', 'colibri', 'llama-cpp', 'vllm', 'code-oss', 'sectium-browser'],
       creator: ['holo-pm', 'sectium-browser', 'obs', 'white-dragon-vtuber'],
       full: APPS.map((a) => a.id),
       minimal: ['holo-pm'],
