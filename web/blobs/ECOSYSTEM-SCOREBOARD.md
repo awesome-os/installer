@@ -1,6 +1,6 @@
 # Awesome-OS `v11` Ecosystem Scoreboard
 
-> Auto-updated daily by [`scripts/sync-ecosystem-reports.mts`](../scripts/sync-ecosystem-reports.mts) · Last sync: `2026-11-26T08:12:33.665Z`
+> Auto-updated daily by [`scripts/sync-ecosystem-reports.mts`](../scripts/sync-ecosystem-reports.mts) · Last sync: `2026-11-26T08:14:46.085Z`
 
 ## 1. 9-Runtime Big Boys `v11` CAS Coverage
 

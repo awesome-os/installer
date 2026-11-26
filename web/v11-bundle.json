@@ -2,7 +2,7 @@
   "schema": "awesome-os.web-v11-bundle.v1",
   "abiMagic": "0x33564742",
   "casLayout": "v11",
-  "generatedAt": "2026-11-26T08:12:36.458Z",
+  "generatedAt": "2026-11-26T08:15:16.196Z",
   "artifacts": [
     {
       "id": "sectium-control-plane-wasi",
@@ -17,8 +17,8 @@
       "url": "./blobs/max-version-lock.json",
       "installPath": "manifest/max-version-lock.json",
       "description": "Unified V8 16+ & ahead-of-Chrome dependency version lockfile",
-      "bytes": 13043,
-      "sha512": "b9eec9675f383f2fe1b2ef3c26993613ac57db21e047827612846bcb6d81ebe0069274b28182fb326e3397cc877b7334845e5e1ae1b0526178ad62416affbd07"
+      "bytes": 13034,
+      "sha512": "0bda838f52f3edb0c67bc0e828f8323e5d551c42ee6ba061f67729718a30052f8041480d6c35f680b328f3b916415d4d11a5d0d563e4bf80a976d2720bdf3518"
     },
     {
       "id": "ecosystem-scoreboard",
@@ -26,7 +26,7 @@
       "installPath": "docs/ECOSYSTEM-SCOREBOARD.md",
       "description": "Live 9-runtime Big Boys v11 CAS overlap & version scoreboard",
       "bytes": 2093,
-      "sha512": "bf7374542b8d79c284cac037e5bf5d13eafd5572b36355422959006a4c0dcfadb4e7a987d6c8787a71daddd5747e915ffe05a7293bc32eaf09d287372674a156"
+      "sha512": "e7c15792f3eb8f8b90af63312a6e2b590d7ca41c9c04c06edb556d9aad2b95ce5bcface2b426205bcb43cffb126b8bcc005402da25fc4b12672b83a326ece021"
     }
   ]
 }
