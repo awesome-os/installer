@@ -2,7 +2,7 @@
   "schema": "awesome-os.web-v11-bundle.v1",
   "abiMagic": "0x33564742",
   "casLayout": "v11",
-  "generatedAt": "2026-11-26T08:06:36.096Z",
+  "generatedAt": "2026-11-26T08:12:36.458Z",
   "artifacts": [
     {
       "id": "sectium-control-plane-wasi",
@@ -25,8 +25,8 @@
       "url": "./blobs/ECOSYSTEM-SCOREBOARD.md",
       "installPath": "docs/ECOSYSTEM-SCOREBOARD.md",
       "description": "Live 9-runtime Big Boys v11 CAS overlap & version scoreboard",
-      "bytes": 1911,
-      "sha512": "eeab379c0232973f6d273038596fbafdf44ecda3deccf2ec6ec5a0a9ee351691dc33d457e45cf558ec2c4e1a1ab940cd13097a5970e44a7cd3e6457342eb6769"
+      "bytes": 2093,
+      "sha512": "bf7374542b8d79c284cac037e5bf5d13eafd5572b36355422959006a4c0dcfadb4e7a987d6c8787a71daddd5747e915ffe05a7293bc32eaf09d287372674a156"
     }
   ]
 }

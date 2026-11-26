@@ -1,16 +1,16 @@
 # Awesome-OS `v11` Ecosystem Scoreboard
 
-> Auto-updated daily by [`scripts/sync-ecosystem-reports.mts`](../scripts/sync-ecosystem-reports.mts) · Last sync: `2026-11-26T08:06:36.003Z`
+> Auto-updated daily by [`scripts/sync-ecosystem-reports.mts`](../scripts/sync-ecosystem-reports.mts) · Last sync: `2026-11-26T08:12:33.665Z`
 
 ## 1. 9-Runtime Big Boys `v11` CAS Coverage
 
-- **Runtimes at 100% Coverage:** **6 / 9**
-- **Standalone Disk Collapsed into 1 Shared `v11` CAS Layer:** **1.932 MB**
+- **Runtimes at 100% Coverage:** **9 / 12**
+- **Standalone Disk Collapsed into 1 Shared `v11` CAS Layer:** **2.597 MB**
 - **V8 Shared Baseline:** `16.0.88 (rolling latest via awesome-os/libv8_monolith)`
 
 | Runtime | Covered | Coverage |
 | :--- | ---: | ---: |
-| **Chromium / Sectium Browser** | 26/27 | **96.3%** |
+| **Chromium 160 Canary / Sectium Browser** | 26/27 | **96.3%** |
 | **Firefox (Gecko / SpiderMonkey)** | 22/24 | **91.7%** |
 | **Electron (awesome-os/sectium-electron)** | 20/20 | **100%** |
 | **NW.js (holo-display-nwjs)** | 18/18 | **100%** |
@@ -19,6 +19,9 @@
 | **Bun** | 12/12 | **100%** |
 | **Ladybird (awesome-os/ladybird)** | 23/23 | **100%** |
 | **just-js/lo (lo/lib/*)** | 19/19 | **100%** |
+| **Colibri MoE (awesome-os/colibri)** | 11/11 | **100%** |
+| **llama.cpp (awesome-os/llama.cpp)** | 12/12 | **100%** |
+| **vLLM (awesome-os/vllm)** | 16/16 | **100%** |
 
 ## 2. Ahead-of-Chrome Upstream Pins
 
@@ -34,5 +37,5 @@
 
 ## 3. Independent Engine & Upstream Package Radar
 
-- **Ladybird Hard-Fork (`awesome-os/ladybird`):** `42` libraries · `752` WebIDL interfaces · `1.348` FIXMEs · `67.35%` dep overlap (`15` libs raised from `v11`).
+- **Ladybird Hard-Fork (`awesome-os/ladybird`):** `42` libraries · `752` WebIDL interfaces · `1.348` FIXMEs · `67.35%` dep overlap (`16` libs raised from `v11`).
 - **Full Reports:** [`BIG-BOYS-OVERLAP-REPORT.md`](BIG-BOYS-OVERLAP-REPORT.md) · [`LADYBIRD-CHROME-PARITY.md`](LADYBIRD-CHROME-PARITY.md) · [`T2SDE-MODERNIZATION-WISHLIST.md`](T2SDE-MODERNIZATION-WISHLIST.md) · [`max-version-lock.json`](max-version-lock.json) · [`ahead-of-chrome-pins.json`](ahead-of-chrome-pins.json).

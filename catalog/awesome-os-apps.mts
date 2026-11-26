@@ -27,7 +27,7 @@ export const AWESOME_OS_CATALOG: readonly ReleaseMatrixDef[] = [
     version: '0.7.2',
     kind: 'gui-app',
     binaryName: 'sectium-browser',
-    description: 'Sovereign Chromium 158+ browser with AtlasKV Search & nudge-free Google',
+    description: 'Sovereign Chromium 160 Canary (160.0.8184.0) browser with AtlasKV Search & nudge-free Google',
     targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64'],
     casAssets: {
       win64: 'electron-win64.tar.zst',
@@ -35,7 +35,7 @@ export const AWESOME_OS_CATALOG: readonly ReleaseMatrixDef[] = [
       'linux-arm64': 'electron-linux-arm64.tar.zst',
       'macos-arm64': 'electron-macos-arm64.tar.zst',
     },
-    splash: LUMI_GUI_SPLASH('Sectium Browser', 'Chromium 158+  |  AtlasKV Sovereign Search'),
+    splash: LUMI_GUI_SPLASH('Sectium Browser', 'Chromium 160 Canary  |  AtlasKV Sovereign Search'),
   }),
   defineReleaseMatrix({
     id: 'code-oss',
