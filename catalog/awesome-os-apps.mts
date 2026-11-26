@@ -266,6 +266,22 @@ export const AWESOME_OS_CATALOG: readonly ReleaseMatrixDef[] = [
     },
   }),
   defineReleaseMatrix({
+    id: 'bun-neon',
+    displayName: 'Awesome-OS Bun-Neon (V8 16+)',
+    repo: 'awesome-os/bun-neon',
+    version: '0.1.0',
+    kind: 'cli-runtime',
+    binaryName: 'bun-neon',
+    description: 'V8 16+-backed Bun runtime over Holo v11 CAS (mimalloc 3.7.1, openssl 4.1.0, zstd 1.6.0)',
+    targets: ['win64', 'linux-x64', 'linux-arm64', 'macos-arm64'],
+    casAssets: {
+      win64: 'bun-neon-v8.exe',
+      'linux-x64': 'bun-neon-linux-x64',
+      'linux-arm64': 'bun-neon-linux-arm64',
+      'macos-arm64': 'bun-neon-macos-arm64',
+    },
+  }),
+  defineReleaseMatrix({
     id: 'colibri',
     displayName: 'Awesome-OS Colibri (MoE LLM Engine)',
     repo: 'awesome-os/colibri',
