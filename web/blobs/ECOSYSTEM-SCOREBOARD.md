@@ -1,11 +1,11 @@
 # AwesomeOS `v11` Ecosystem Scoreboard (`v1.0-v11`)
 
-> Auto-updated by [`os/bootstrap/holo-distro-bootstrap.mts`](https://github.com/awesome-os/awesome-os/blob/main/os/bootstrap/holo-distro-bootstrap.mts) · Last sync: `2026-11-26T17:49:58.077Z`
+> Auto-updated by [`os/bootstrap/holo-distro-bootstrap.mts`](https://github.com/awesome-os/awesome-os/blob/main/os/bootstrap/holo-distro-bootstrap.mts) · Last sync: `2026-11-26T18:47:40.882Z`
 
 ## 1. 22-Runtime Big Boys `v11` CAS Coverage
 
 - **Runtimes at 100% Coverage:** **15 / 22**
-- **Standalone Disk Collapsed into 1 Shared `v11` CAS Layer:** **13.987 MB**
+- **Standalone Disk Collapsed into 1 Shared `v11` CAS Layer:** **13,987 MB**
 - **V8 Shared Baseline:** `16.0.88 (rolling latest via awesome-os/libv8_monolith)`
 
 | Runtime | Covered | Coverage |
