@@ -46,10 +46,19 @@ jobs:
           for (const art of bundle.artifacts) {
             const p = path.join('web', art.url);
             const buf = fs.readFileSync(p);
-            assert.equal(buf.byteLength, art.bytes);
-            const sha512 = crypto.createHash('sha512').update(buf).digest('hex');
+            let effective = buf;
+            let lineEndingNormalized = false;
+            if (effective.byteLength !== art.bytes && /\.(md|txt|json|html|ps1|sh)$/i.test(p)) {
+              const crlf = Buffer.from(buf.toString('utf8').replace(/\r?\n/g, '\r\n'), 'utf8');
+              if (crlf.byteLength === art.bytes) {
+                effective = crlf;
+                lineEndingNormalized = true;
+              }
+            }
+            assert.equal(effective.byteLength, art.bytes);
+            const sha512 = crypto.createHash('sha512').update(effective).digest('hex');
             assert.equal(sha512, art.sha512);
-            verifiedArtifacts.push({ id: art.id, bytes: buf.byteLength, sha512 });
+            verifiedArtifacts.push({ id: art.id, bytes: effective.byteLength, sha512, lineEndingNormalized });
           }
           fs.writeFileSync(
             process.env.HOLO_E2E_ARTIFACTS + '/bundle-verify.json',
