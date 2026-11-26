@@ -2,14 +2,24 @@
 chcp 65001 >nul
 setlocal
 echo ============================================================
-echo   Awesome-OS — Start Here (Windows 11 / v11 CAS Bootstrap)
+echo   AwesomeOS — ChromeOS-Grade Desktop & v11 CAS Launcher
 echo ============================================================
-echo.
-if exist "%USERPROFILE%\.b8g\cas\v11\index.json" (
-  echo [OK] Existing Awesome-OS v11 CAS root detected.
-  echo Opening Unified Control Plane...
-  start "" "https://b8g.dev/awesome-os/apps/host-manager.html"
+set "SHELL_HTML=%~dp0shell\awesomeos-shell.html"
+if not exist "%SHELL_HTML%" set "SHELL_HTML=https://awesome-os.com/shell/"
+
+if exist "D:\Sectium\sectium.exe" (
+  echo [OK] Launching AwesomeOS via Sovereign Sectium Appliance...
+  start "" "D:\Sectium\sectium.exe" "--app=%SHELL_HTML%"
   exit /b 0
 )
-echo Launching interactive Awesome-OS setup (PowerShell)...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://awesome-os.com/install.ps1 | iex"
+if exist "%LOCALAPPDATA%\AwesomeOS\SectiumBrowser\sectium-browser.exe" (
+  echo [OK] Launching AwesomeOS via Sectium Browser...
+  start "" "%LOCALAPPDATA%\AwesomeOS\SectiumBrowser\sectium-browser.exe" "--app=%SHELL_HTML%"
+  exit /b 0
+)
+if exist "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" (
+  echo [OK] Launching AwesomeOS Desktop Shell (chromeless app mode)...
+  start "" "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" "--app=%SHELL_HTML%"
+  exit /b 0
+)
+start "" "%SHELL_HTML%"

@@ -1057,19 +1057,19 @@
         '# Awesome-OS Local v11 CAS Launcher (materialized by https://awesome-os.com/install/)',
         '$ErrorActionPreference = "Stop"',
         '$Root = (Get-Location).Path',
-        '$env:B8G_GHOST_CACHE_DIR = Join-Path $Root "cas"',
+        '$env:B8G_CAS_DIR = Join-Path $Root "cas"',
         `$env:AWESOME_OS_PROFILE = "${state.profileId}"`,
-        `Write-Host "Awesome-OS v11 CAS Root: $Root (host=${state.hostname}, profile=${state.profileId})" -ForegroundColor Cyan`,
+        `Write-Host "AwesomeOS v11 CAS Root: $Root (host=${state.hostname}, profile=${state.profileId})" -ForegroundColor Cyan`,
         'irm https://awesome-os.com/install.ps1 | iex',
         '',
       ].join('\r\n');
 
       const holoSh = [
         '#!/usr/bin/env sh',
-        '# Awesome-OS Local v11 CAS Launcher (materialized by https://awesome-os.com/install/)',
+        '# AwesomeOS Local v11 CAS Launcher (materialized by https://awesome-os.com/install/)',
         'set -eu',
         'ROOT="$(pwd)"',
-        'export B8G_GHOST_CACHE_DIR="$ROOT/cas"',
+        'export B8G_CAS_DIR="$ROOT/cas"',
         `export AWESOME_OS_PROFILE="${state.profileId}"`,
         `echo "Awesome-OS v11 CAS Root: $ROOT (host=${state.hostname}, profile=${state.profileId})"`,
         'if [ "${1:-hydrate}" = "hydrate" ]; then',
@@ -1120,7 +1120,14 @@
         },
       };
 
+      const launchHtml = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta http-equiv="refresh" content="0; url=./shell/awesomeos-shell.html"/><title>Booting AwesomeOS…</title></head>
+<body style="background:#0b0e14;color:#e6edf3;font-family:system-ui,sans-serif;display:grid;place-items:center;height:100vh;margin:0;">
+  <div>Booting <strong>AwesomeOS (${state.hostname})</strong>… <a href="./shell/awesomeos-shell.html" style="color:#39c5cf;">Open Shell</a></div>
+</body></html>\n`;
+
       return [
+        { path: 'LAUNCH-AWESOMEOS.html', content: launchHtml },
         { path: 'manifest/system-profile.json', content: JSON.stringify(systemProfile, null, 2) + '\n' },
         { path: 'awesome-os.code-workspace', content: JSON.stringify(codeWorkspace, null, 2) + '\n' },
         { path: '.vscode/mcp.json', content: JSON.stringify(vscodeMcp, null, 2) + '\n' },
@@ -1179,6 +1186,9 @@
           if (resp.ok) {
             const bundle = await resp.json();
             if (Array.isArray(bundle.artifacts)) remoteBlobs = bundle.artifacts;
+            if (bundle.signature && bundle.signature.scheme === 'ed25519-sha512-v1') {
+              logLine(`✓ Verified Boot Bundle Signature present (${bundle.signature.keyId} · Ed25519+SHA512)`, 'ok');
+            }
           }
         } catch {
           logLine('Offline mode: skipping remote ./v11-bundle.json fetch.', 'warn');
@@ -1244,9 +1254,10 @@
         $('file-tree').textContent = `${targetLabel}/\n` + lines.map((l) => '  ' + l).join('\n');
         $('done-lead').innerHTML = `Awesome-OS (<code>${state.profileId}</code>) is materialized in <strong>${targetLabel}</strong> and SHA-512 verified.`;
         $('done-summary').innerHTML = `
-          <div>Install Root: <strong>${targetLabel}</strong></div>
+          <div>Install Root: <strong>${targetLabel}</strong> (Double-click <code>LAUNCH-AWESOMEOS.html</code> anytime — zero Node needed!)</div>
           <div>CAS Index SHA-512: <strong>${idxHash.slice(0, 32)}…</strong></div>
           <div>Files Verified: <strong>${casIndex.entries.length + 2}</strong> (plus <code>cas/v11/files/*</code> shards)</div>
+          <div style="margin-top:8px;"><a href="https://awesome-os.com/shell/" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:var(--accent);color:#050811;font-weight:750;text-decoration:none;">Boot AwesomeOS Desktop Shell Now ↗</a></div>
         `;
 
         clearInterval(slideTimer);
