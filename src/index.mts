@@ -106,7 +106,7 @@ try {
 $ErrorActionPreference = 'Stop'
 $InstallDir = if ($env:AWESOME_OS_INSTALL_DIR) { $env:AWESOME_OS_INSTALL_DIR } else { "$env:LOCALAPPDATA\\AwesomeOS\\${def.id}" }
 $BaseUrl = if ($env:AWESOME_OS_BASE_URL) { $env:AWESOME_OS_BASE_URL } else { "${base}" }
-$CasRoot = if ($env:B8G_GHOST_CACHE_DIR) { $env:B8G_GHOST_CACHE_DIR } else { Join-Path $HOME ".b8g\\cas" }
+$CasRoot = if ($env:B8G_CAS_DIR) { $env:B8G_CAS_DIR } else { Join-Path $HOME ".b8g\\cas" }
 
 Write-Host "[${def.displayName}] Installing ${def.version} -> $InstallDir ..." -ForegroundColor Cyan
 New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
@@ -212,7 +212,7 @@ set -eu
 
 BASE="\${AWESOME_OS_BASE_URL:-${base}}"
 INSTALL_DIR="\${AWESOME_OS_INSTALL_DIR:-$HOME/.local/bin}"
-CAS_ROOT="\${B8G_GHOST_CACHE_DIR:-$HOME/.b8g/cas}"
+CAS_ROOT="\${B8G_CAS_DIR:-$HOME/.b8g/cas}"
 CAS_FILES_DIR="$CAS_ROOT/v11/files"
 CAS_TMP_DIR="$CAS_ROOT/v11/tmp"
 CAS_LINKS_DIR="$CAS_ROOT/v11/links"

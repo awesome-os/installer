@@ -72,7 +72,7 @@ describe('@awesome-os/installer', () => {
       assert.ok(pnpmEntry);
 
       const ps1 = readFileSync(join(pnpmEntry.outDir, 'install.ps1'), 'utf8');
-      assert.ok(ps1.includes('B8G_GHOST_CACHE_DIR'));
+      assert.ok(ps1.includes('B8G_CAS_DIR'));
       assert.ok(ps1.includes('.b8g\\cas'));
       assert.ok(ps1.includes('v11/files'));
       assert.ok(ps1.includes('v11/tmp'));
@@ -85,7 +85,7 @@ describe('@awesome-os/installer', () => {
       assert.ok(ps1.includes('Copy-Item -LiteralPath $casBlobPath -Destination $exePath'));
 
       const sh = readFileSync(join(pnpmEntry.outDir, 'install.sh'), 'utf8');
-      assert.ok(sh.includes('B8G_GHOST_CACHE_DIR:-$HOME/.b8g/cas'));
+      assert.ok(sh.includes('B8G_CAS_DIR:-$HOME/.b8g/cas'));
       assert.ok(sh.includes('v11/files'));
       assert.ok(sh.includes('v11/tmp'));
       assert.ok(sh.includes('v11/links'));
