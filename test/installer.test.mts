@@ -109,4 +109,16 @@ describe('@awesome-os/installer', () => {
       rmSync(tmp, { recursive: true, force: true });
     }
   });
+
+  it('ships a self-contained OPFS + showDirectoryPicker web installer for awesome-os.com/install', () => {
+    const htmlPath = join(import.meta.dirname, '..', 'web', 'opfs-installer.html');
+    assert.ok(existsSync(htmlPath));
+    const html = readFileSync(htmlPath, 'utf8');
+    assert.ok(html.includes('showDirectoryPicker'));
+    assert.ok(html.includes('navigator.storage.getDirectory'));
+    assert.ok(html.includes("crypto.subtle.digest('SHA-512'"));
+    assert.ok(html.includes('cas/v11/files/'));
+    assert.ok(html.includes('workstation-omarchy'));
+    assert.ok(html.includes('https://awesome-os.com/install/'));
+  });
 });

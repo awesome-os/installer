@@ -19,6 +19,14 @@ node src/cli.mts stamp --out ./dist-web --web-host https://awesome-os.com/downlo
 - `splash_layout.h` — Pixel-exact centered DPI-aware Lumi splash geometry (`AWESOME_SPLASH_ICON_X`, `AWESOME_SPLASH_DPI_AWARE`)
 - `release-manifest.json` + root `web-catalog.json` — Ready to drop directly onto `awesome-os.com`
 
+## Browser Direct-Drop Installer (`https://awesome-os.com/install/`)
+
+[`web/opfs-installer.html`](web/opfs-installer.html) is a zero-download, zero-CDN browser installer deployed live at **`https://awesome-os.com/install/`**:
+
+- **Local Folder Picker (`window.showDirectoryPicker({ mode: 'readwrite' })`):** Let users pick **any local install directory** (e.g. `D:\AwesomeOS`, `~/awesome-os`, or a removable drive) and directly materialize the SHA-512 verified `v11` CAS layout (`cas/v11/files/<aa>/<sha512>`, `bin/holo.ps1`, `bin/holo.sh`, `manifest/system-profile.json`, `manifest/v11-tree.json`).
+- **Browser OPFS Staging (`navigator.storage.getDirectory()`):** Offline/universal fallback that stages the full `v11` bundle in Origin Private File System with live tree inspection and 1-click **Sync OPFS → Local Folder**.
+- **Full Profile & Graphics Matrix:** Supports all 8 `system://profile/*` presets (`workstation-omarchy`, `workstation-noctalia`, `workstation-sectium`, `workstation-chonkstep`, `workstation-gnome`, `workstation-kde`, `workstation-omarchy-m1`, `baseline-t2sde`), selectable `+ Advanced Graphics` (Wayland + WebGPU + default rootless `Xwayland`), and `system://driver-set/*` tracks.
+
 ## Quick Verification
 ```bash
 node --test test/installer.test.mts
