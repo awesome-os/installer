@@ -27,9 +27,14 @@ node src/cli.mts stamp --out ./dist-web --web-host https://awesome-os.com/downlo
 - **Browser OPFS Staging (`navigator.storage.getDirectory()`):** Offline/universal fallback that stages the full `v11` bundle in Origin Private File System with live tree inspection and 1-click **Sync OPFS → Local Folder**.
 - **Full Profile & Graphics Matrix:** Supports all 8 `system://profile/*` presets (`workstation-omarchy`, `workstation-noctalia`, `workstation-sectium`, `workstation-chonkstep`, `workstation-gnome`, `workstation-kde`, `workstation-omarchy-m1`, `baseline-t2sde`), selectable `+ Advanced Graphics` (Wayland + WebGPU + default rootless `Xwayland`), and `system://driver-set/*` tracks.
 
-## Quick Verification
+## Quick Verification, Clean-Box Stranger E2E & `holo-ci@v1`
+
+- **Clean-Box Stranger E2E ([`.github/workflows/clean-box-stranger-e2e.yml`](.github/workflows/clean-box-stranger-e2e.yml)):** Runs with **zero `actions/checkout`** on both `ubuntu-latest` and `windows-latest`, verifying live HTTP 200 endpoints (`awesome-os.com/install/`, `v11-bundle.json`, `b8g.dev`), Ed25519 + SHA-512 cryptographic signatures over `v11-bundle.json`, signed `v1.0.0` release assets, and live compiled `holo-devtools-launcher` + `libsample_engine_plugin.so` (`B8G_ABI_MAGIC_V3 = 0x33564742`) execution on `ubuntu-latest`.
+- **Centralized CI (`holo-ci@v1`):** Enforced via [`.github/workflows/holo-ci.yml`](.github/workflows/holo-ci.yml) and [`holo-ci.json`](holo-ci.json).
+
 ```bash
 node --test test/installer.test.mts
+holo-ci verify --cwd .
 ```
 
 ## Quick Install & Run (Windows / Linux / macOS)

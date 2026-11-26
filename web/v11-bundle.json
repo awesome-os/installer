@@ -2,7 +2,7 @@
   "schema": "awesome-os.web-v11-bundle.v1",
   "abiMagic": "0x33564742",
   "casLayout": "v11",
-  "generatedAt": "2026-11-26T20:18:57.884Z",
+  "generatedAt": "2026-11-26T21:05:01.224Z",
   "artifacts": [
     {
       "id": "sectium-control-plane-wasi",
@@ -37,20 +37,20 @@
     {
       "id": "ecosystem-scoreboard",
       "path": "docs/ECOSYSTEM-SCOREBOARD.md",
-      "size": 2978,
+      "size": 2974,
       "url": "./blobs/ECOSYSTEM-SCOREBOARD.md",
       "installPath": "docs/ECOSYSTEM-SCOREBOARD.md",
       "description": "Live Big Boys v11 CAS overlap & version scoreboard",
-      "bytes": 2978,
-      "sha512": "babf50e65a5e4f7c3c44921d511606f95a82516771dfbe3f76e865c2cb8a7d2f831690c17b3516e98ba14b7d074ba201f67acbeb93c2236e19c91afa0a9d0115"
+      "bytes": 2974,
+      "sha512": "f9b18ce1f34e48e553c8389308edddc3eb38ef81f71962975a398b4c20eedd2647c0fde38370402e574cecf56c86b19c8e29bba4cc3db276c0bc5d83f74d9c5c"
     }
   ],
   "signature": {
     "scheme": "ed25519-sha512-v1",
     "keyId": "awesomeos-root-v11",
     "publicKeyHex": "8706ca1108354453755a32bc0d450a697b084cb5fb18a9a1ed1f4a31eb82a081",
-    "payloadSha512": "f08326972e74e864cff01eb239ce3ce9b9d8065117ea33858b781455f8d60c0fdc9becba5b5779b2d5baf33df004c0eb1cad061fc80dcf5ceea154189c748f28",
-    "signatureHex": "f611292368609875a12cdd5724eb36c9e397cb67317163b6239ed71dc4bbaf4ca1bcc062d7ba6ebf96798b37857bb0fa1e03a32bac91870dc7fb438bb04b4802",
-    "signedAt": "2026-11-26T20:18:57.885Z"
+    "payloadSha512": "11dfdf63508fa7b52b1d59253840f956b7ad2f5b67c71d4317dacce13dbd5c9722b9d7840433ad7ffe6510779fd0e4b27fc5c9a36c95149761be8a7a3db359d6",
+    "signatureHex": "655904d1317542b334b2e6608972bf5571a9d4be5d0fca037443859cbab7346c52863bbeed5ec778cfce0d89aa8ca205a5191beabc7776f60f687760bf54fa0c",
+    "signedAt": "2026-11-26T21:05:01.225Z"
   }
 }

@@ -1,20 +1,20 @@
 # AwesomeOS `v11` Ecosystem Scoreboard (`v1.0-v11`)
 
-> Auto-updated by [`os/bootstrap/holo-distro-bootstrap.mts`](https://github.com/awesome-os/awesome-os/blob/main/os/bootstrap/holo-distro-bootstrap.mts) · Last sync: `2026-11-26T20:09:49.721Z`
+> Auto-updated by [`os/bootstrap/holo-distro-bootstrap.mts`](https://github.com/awesome-os/awesome-os/blob/main/os/bootstrap/holo-distro-bootstrap.mts) · Last sync: `2026-11-26T20:33:19.952Z`
 
 ## 1. 22-Runtime Big Boys `v11` CAS Coverage
 
-- **Runtimes at 100% Coverage:** **15 / 22**
+- **Runtimes at 100% Coverage:** **19 / 22**
 - **Standalone Disk Collapsed into 1 Shared `v11` CAS Layer:** **13,987 MB**
 - **V8 Shared Baseline:** `16.0.88 (rolling latest via awesome-os/libv8_monolith)`
 
 | Runtime | Covered | Coverage |
 | :--- | ---: | ---: |
-| **Chromium 160 Canary / Sectium Browser** | 26/27 | **96.3%** |
-| **Firefox (Gecko / SpiderMonkey)** | 22/24 | **91.7%** |
+| **Chromium 160 Canary / Sectium Browser** | 27/27 | **100%** |
+| **Firefox (Gecko / SpiderMonkey)** | 24/24 | **100%** |
 | **Electron (awesome-os/electron)** | 20/20 | **100%** |
 | **NW.js (holo-display-nwjs)** | 18/18 | **100%** |
-| **Node.js** | 15/16 | **93.8%** |
+| **Node.js** | 16/16 | **100%** |
 | **Deno** | 10/10 | **100%** |
 | **Bun** | 12/12 | **100%** |
 | **Ladybird (awesome-os/ladybird)** | 23/23 | **100%** |
@@ -27,9 +27,9 @@
 | **Omarchy / Hyprland 0.57 (wlroots 0.20)** | 15/15 | **100%** |
 | **Rust / Cargo Native Crates (*-sys)** | 25/25 | **100%** |
 | **.NET 11 SDK & Native Runtime** | 17/17 | **100%** |
-| **microsoft/vcpkg Top 100 Native Binary Ports** | 89/100 | **89%** |
-| **npm Top Native Binary Addons (sharp/sqlite/canvas/v8)** | 31/32 | **96.9%** |
-| **PyPI / Python Top Binary Wheels (numpy/torch/pillow/arrow)** | 30/33 | **90.9%** |
+| **microsoft/vcpkg Top 100 Native Binary Ports** | 94/100 | **94%** |
+| **npm Top Native Binary Addons (sharp/sqlite/canvas/v8)** | 32/32 | **100%** |
+| **PyPI / Python Top Binary Wheels (numpy/torch/pillow/arrow)** | 31/33 | **93.9%** |
 | **GPU Compute & AI Accelerators (CUDA / NCCL / ROCm / Triton / XDNA)** | 21/21 | **100%** |
 | **Linux Kernel & Bare-Metal Boot (torvalds/linux + Limine + musl)** | 14/15 | **93.3%** |
 
