@@ -155,3 +155,54 @@ jobs:
           EOF
           node clean-box-verify.mjs
           rm -f clean-box-verify.mjs
+
+      - name: Live Compiled Binary Stranger Execution (ubuntu-latest)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK_DIR="/tmp/holo-stranger-work"
+          EXTRACT_DIR="/tmp/holo-stranger-test"
+          rm -rf "${WORK_DIR}" "${EXTRACT_DIR}"
+          mkdir -p "${WORK_DIR}" "${EXTRACT_DIR}"
+
+          BASE_URL="https://github.com/awesome-os/devtools/releases/download/v11-devtools-launchers-latest"
+          TAR_NAME="devtools-launchers-linux-x86_64-holo-v11.tar.gz"
+
+          curl -fsSL -o "${WORK_DIR}/SHA512SUMS.txt" "${BASE_URL}/SHA512SUMS.txt"
+          curl -fsSL -o "${WORK_DIR}/${TAR_NAME}" "${BASE_URL}/${TAR_NAME}"
+
+          (
+            cd "${WORK_DIR}"
+            awk -v f="${TAR_NAME}" '($2 == f || $2 == "*" f) && $1 ~ /^[0-9a-fA-F]{128}$/ { print; found=1 } END { exit !found }' SHA512SUMS.txt | sha512sum -c -
+          )
+
+          echo "[TAR LIST] ${TAR_NAME}"
+          tar -tzf "${WORK_DIR}/${TAR_NAME}"
+          tar -tzf "${WORK_DIR}/${TAR_NAME}" | grep -qxE '(\./)?holo-devtools-launcher'
+          tar -tzf "${WORK_DIR}/${TAR_NAME}" | grep -qxE '(\./)?libsample_engine_plugin\.so'
+
+          tar -xzf "${WORK_DIR}/${TAR_NAME}" -C "${EXTRACT_DIR}"
+          chmod +x "${EXTRACT_DIR}/holo-devtools-launcher" "${EXTRACT_DIR}/libsample_engine_plugin.so"
+
+          shopt -s nullglob
+          bmp_files=("${EXTRACT_DIR}"/*.bmp)
+          if [ "${#bmp_files[@]}" -eq 0 ]; then
+            echo "ERROR: No extracted .bmp splash files found in ${EXTRACT_DIR}" >&2
+            exit 1
+          fi
+          echo "[SPLASHES OK] count=${#bmp_files[@]} files=${bmp_files[*]}"
+
+          LAUNCHER_OUT="$(LD_LIBRARY_PATH="${EXTRACT_DIR}" "${EXTRACT_DIR}/holo-devtools-launcher" "${EXTRACT_DIR}/libsample_engine_plugin.so")"
+          echo "[LAUNCHER STDOUT] ${LAUNCHER_OUT}"
+
+          if ! printf '%s\n' "${LAUNCHER_OUT}" | grep -qF '0x33564742'; then
+            echo "ERROR: Expected stdout to contain 0x33564742 (B8G_ABI_MAGIC_V3)" >&2
+            exit 1
+          fi
+          if ! printf '%s\n' "${LAUNCHER_OUT}" | grep -qF 'loaded=1'; then
+            echo "ERROR: Expected stdout to contain loaded=1" >&2
+            exit 1
+          fi
+
+          rm -rf "${WORK_DIR}" "${EXTRACT_DIR}"
