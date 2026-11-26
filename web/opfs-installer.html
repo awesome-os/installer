@@ -691,11 +691,11 @@
 
           <div style="font-weight: 650; font-size: 0.88rem; margin-top: 10px;">Hydrate Native Binaries (Run inside your install folder):</div>
           <div class="cmd-box">
-            <code id="cmd-win">.\bin\holo.ps1 hydrate</code>
+            <code id="cmd-win">pwsh -ExecutionPolicy Bypass -Command "iex (Get-Content .\bootstrap\holo-windows.ps1.txt -Raw)"</code>
             <button type="button" class="copy-btn" data-copy="cmd-win">Copy</button>
           </div>
           <div class="cmd-box">
-            <code id="cmd-posix">sh ./bin/holo.sh hydrate</code>
+            <code id="cmd-posix">sh ./bootstrap/holo-posix.sh.txt hydrate</code>
             <button type="button" class="copy-btn" data-copy="cmd-posix">Copy</button>
           </div>
         </div>
@@ -956,12 +956,21 @@
       const parts = relPath.split('/').filter(Boolean);
       const fileName = parts.pop();
       const dir = await ensureDir(rootHandle, parts.join('/'));
-      const fh = await dir.getFileHandle(fileName, { create: true });
-      const w = await fh.createWritable();
       const bytes = typeof content === 'string' ? new TextEncoder().encode(content) : content;
+      let actualName = fileName;
+      let fh;
+      try {
+        fh = await dir.getFileHandle(fileName, { create: true });
+      } catch (err) {
+        // Chromium File System Access API blocks executable extensions (.ps1, .sh, .bat, .cmd) on local disk
+        actualName = `${fileName}.txt`;
+        fh = await dir.getFileHandle(actualName, { create: true });
+      }
+      const w = await fh.createWritable();
       await w.write(bytes);
       await w.close();
-      return bytes;
+      const actualPath = parts.length ? `${parts.join('/')}/${actualName}` : actualName;
+      return { bytes, actualPath };
     }
 
     async function collectTreeLines(dirHandle, prefix = '', out = []) {
@@ -982,20 +991,31 @@
 
     async function copyDirRecursive(srcHandle, dstHandle) {
       let count = 0;
+      const renamed = [];
       for await (const [name, handle] of srcHandle.entries()) {
         if (handle.kind === 'directory') {
           const sub = await dstHandle.getDirectoryHandle(name, { create: true });
-          count += await copyDirRecursive(handle, sub);
+          const res = await copyDirRecursive(handle, sub);
+          count += res.count;
+          renamed.push(...res.renamed);
         } else {
           const f = await handle.getFile();
-          const out = await dstHandle.getFileHandle(name, { create: true });
+          let out;
+          try {
+            out = await dstHandle.getFileHandle(name, { create: true });
+          } catch {
+            // Chromium blocks .ps1/.sh on local disk; fall back to .txt so sync never aborts
+            const safeName = `${name}.txt`;
+            out = await dstHandle.getFileHandle(safeName, { create: true });
+            renamed.push(`${name} -> ${safeName}`);
+          }
           const w = await out.createWritable();
           await w.write(await f.arrayBuffer());
           await w.close();
           count++;
         }
       }
-      return count;
+      return { count, renamed };
     }
 
     function buildPayloadFiles(targetLabel) {
@@ -1031,13 +1051,11 @@
       const holoPs1 = [
         '# Awesome-OS Local v11 CAS Launcher (materialized by https://awesome-os.com/install/)',
         '$ErrorActionPreference = "Stop"',
-        '$Root = Split-Path -Parent $PSScriptRoot',
+        '$Root = (Get-Location).Path',
         '$env:B8G_GHOST_CACHE_DIR = Join-Path $Root "cas"',
         `$env:AWESOME_OS_PROFILE = "${state.profileId}"`,
         `Write-Host "Awesome-OS v11 CAS Root: $Root (host=${state.hostname}, profile=${state.profileId})" -ForegroundColor Cyan`,
-        'if ($args.Count -eq 0 -or $args[0] -eq "hydrate") {',
-        '  irm https://awesome-os.com/install.ps1 | iex',
-        '}',
+        'irm https://awesome-os.com/install.ps1 | iex',
         '',
       ].join('\r\n');
 
@@ -1045,7 +1063,7 @@
         '#!/usr/bin/env sh',
         '# Awesome-OS Local v11 CAS Launcher (materialized by https://awesome-os.com/install/)',
         'set -eu',
-        'ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"',
+        'ROOT="$(pwd)"',
         'export B8G_GHOST_CACHE_DIR="$ROOT/cas"',
         `export AWESOME_OS_PROFILE="${state.profileId}"`,
         `echo "Awesome-OS v11 CAS Root: $ROOT (host=${state.hostname}, profile=${state.profileId})"`,
@@ -1066,16 +1084,16 @@
         `Selected Apps:     ${selectedApps.map((a) => a.id).join(', ')}`,
         `Materialized At:   ${createdAt}`,
         '',
-        'Next Steps:',
-        '  Windows (PowerShell):  .\\bin\\holo.ps1 hydrate',
-        '  Linux / macOS (POSIX): sh ./bin/holo.sh hydrate',
+        'Next Steps (run inside this folder):',
+        '  Windows (PowerShell):  pwsh -ExecutionPolicy Bypass -Command "iex (Get-Content .\\bootstrap\\holo-windows.ps1.txt -Raw)"',
+        '  Linux / macOS (POSIX): sh ./bootstrap/holo-posix.sh.txt hydrate',
         '',
       ].join('\n');
 
       return [
         { path: 'manifest/system-profile.json', content: JSON.stringify(systemProfile, null, 2) + '\n' },
-        { path: 'bin/holo.ps1', content: holoPs1 },
-        { path: 'bin/holo.sh', content: holoSh },
+        { path: 'bootstrap/holo-windows.ps1.txt', content: holoPs1 },
+        { path: 'bootstrap/holo-posix.sh.txt', content: holoSh },
         { path: 'README.txt', content: readmeTxt },
       ];
     }
@@ -1135,19 +1153,19 @@
         let done = 0;
         for (const f of files) {
           setProgress(Math.round(((done + 0.5) / total) * 100), `Writing & hashing ${f.path}…`);
-          const bytes = await writeFileAt(dirHandle, f.path, f.content);
+          const { bytes, actualPath } = await writeFileAt(dirHandle, f.path, f.content);
           const hash = await sha512Hex(bytes);
           const shard = hash.slice(0, 2);
           const casPath = `cas/v11/files/${shard}/${hash}`;
           await writeFileAt(dirHandle, casPath, bytes);
-          casIndex.entries.push({ path: f.path, casPath, sha512: hash, bytes: bytes.byteLength });
+          casIndex.entries.push({ path: actualPath, casPath, sha512: hash, bytes: bytes.byteLength });
           done++;
-          setProgress(Math.round((done / total) * 100), `Verified ${f.path}`);
-          logLine(`✓ ${f.path} (${bytes.byteLength} B) → ${casPath.slice(0, 32)}…`, 'ok');
+          setProgress(Math.round((done / total) * 100), `Verified ${actualPath}`);
+          logLine(`✓ ${actualPath} (${bytes.byteLength} B) → ${casPath.slice(0, 32)}…`, 'ok');
         }
 
         setProgress(88, 'Writing cas/v11/index.json…');
-        const idxBytes = await writeFileAt(dirHandle, 'cas/v11/index.json', JSON.stringify(casIndex, null, 2) + '\n');
+        const { bytes: idxBytes } = await writeFileAt(dirHandle, 'cas/v11/index.json', JSON.stringify(casIndex, null, 2) + '\n');
         const idxHash = await sha512Hex(idxBytes);
         await writeFileAt(dirHandle, 'manifest/v11-tree.json', JSON.stringify({
           schema: 'awesome-os.v11-tree.v1',
@@ -1270,12 +1288,24 @@
         const root = await navigator.storage.getDirectory();
         const src = await root.getDirectoryHandle('awesome-os-v11');
         const dst = await window.showDirectoryPicker({ id: 'awesome-os-install', mode: 'readwrite' });
-        const n = await copyDirRecursive(src, dst);
+        if (typeof dst.queryPermission === 'function') {
+          let perm = await dst.queryPermission({ mode: 'readwrite' });
+          if (perm !== 'granted' && typeof dst.requestPermission === 'function') {
+            perm = await dst.requestPermission({ mode: 'readwrite' });
+          }
+          if (perm !== 'granted') {
+            $('done-lead').textContent = `Write permission was not granted for "${dst.name}". Click Sync again and allow editing.`;
+            return;
+          }
+        }
+        const { count } = await copyDirRecursive(src, dst);
         const lines = await collectTreeLines(dst);
         $('file-tree').textContent = `${dst.name}/\n` + lines.map((l) => '  ' + l).join('\n');
-        $('done-lead').innerHTML = `Synced <strong>${n}</strong> verified files from OPFS directly into <strong>${dst.name}</strong>!`;
+        $('done-lead').innerHTML = `Synced <strong>${count}</strong> verified files from OPFS directly into <strong>${dst.name}</strong>!`;
       } catch (err) {
-        if (err && err.name !== 'AbortError') alert(`Sync error: ${err?.message || err}`);
+        if (err && err.name !== 'AbortError') {
+          $('done-lead').textContent = `Sync error: ${err?.message || err}`;
+        }
       }
     });
 
