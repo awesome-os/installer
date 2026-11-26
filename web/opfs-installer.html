@@ -631,18 +631,25 @@
         <!-- Step 3: Install Location -->
         <div class="pane" data-pane="3">
           <h1>Choose Install Location</h1>
-          <p class="lead">Drop Awesome-OS directly into any local directory on your machine (<code>D:\AwesomeOS</code>, <code>~/awesome-os</code>, USB drive) or stage offline inside browser OPFS.</p>
+          <p class="lead">Pick any local folder on your drive (e.g. create <code>AwesomeOS</code> in <code>D:\</code> or Documents) or stage offline inside browser OPFS.</p>
 
           <div class="target-cards">
-            <button type="button" class="target-card active" id="mode-local">
+            <div class="target-card active" id="mode-local" role="button" tabindex="0">
               <strong>Direct Local Folder (Recommended)</strong>
-              <span class="choice-desc">Opens native OS folder picker (<code>window.showDirectoryPicker</code>) and writes the verified <code>v11</code> CAS tree straight to your chosen directory.</span>
-            </button>
-            <button type="button" class="target-card" id="mode-opfs">
+              <span class="choice-desc">Opens native OS folder picker (<code>window.showDirectoryPicker</code>) and writes the verified <code>v11</code> CAS tree straight to your chosen folder.</span>
+              <div style="margin-top: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button type="button" class="copy-btn" id="btn-browse-folder" style="padding: 7px 12px; font-size: 0.8rem;">Browse Folder…</button>
+                <span id="picked-folder-badge" style="font-family: var(--mono); font-size: 0.78rem; color: var(--muted);">No folder chosen yet</span>
+              </div>
+            </div>
+            <div class="target-card" id="mode-opfs" role="button" tabindex="0">
               <strong>Browser OPFS Staging (Offline / Any Browser)</strong>
               <span class="choice-desc">Writes into <code>navigator.storage.getDirectory()</code> with zero disk prompts. Sync to a local folder anytime with 1 click.</span>
-            </button>
+              <div style="margin-top: 8px; font-family: var(--mono); font-size: 0.78rem; color: var(--ok);">Ready · opfs://awesome-os-v11</div>
+            </div>
           </div>
+
+          <div id="step3-alert" style="display:none; margin-bottom: 14px; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--warn); background: rgba(255, 204, 102, 0.1); color: #ffe2a8; font-size: 0.84rem;"></div>
 
           <div class="summary-box" id="preinstall-summary"></div>
         </div>
@@ -755,6 +762,8 @@
       driverTrack: 'open-foss',
       selectedApps: new Set(APPS.filter((a) => a.checked).map((a) => a.id)),
       targetMode: typeof window.showDirectoryPicker === 'function' ? 'local' : 'opfs',
+      pickedDirHandle: null,
+      pickedDirName: null,
       hasFSA: typeof window.showDirectoryPicker === 'function',
       hasOPFS: Boolean(navigator.storage && typeof navigator.storage.getDirectory === 'function'),
       opfsStaged: false,
@@ -763,6 +772,61 @@
 
     const $ = (id) => document.getElementById(id);
     $('opt-timezone').value = state.timezone;
+
+    function setStep3Alert(msg = '', isError = false) {
+      const box = $('step3-alert');
+      if (!msg) {
+        box.style.display = 'none';
+        box.textContent = '';
+        return;
+      }
+      box.style.display = 'block';
+      box.style.borderColor = isError ? 'var(--err)' : 'var(--warn)';
+      box.style.background = isError ? 'rgba(255, 107, 129, 0.12)' : 'rgba(255, 204, 102, 0.1)';
+      box.style.color = isError ? '#ffc2cc' : '#ffe2a8';
+      box.textContent = msg;
+    }
+
+    async function pickLocalFolder() {
+      setStep3Alert('');
+      if (!state.hasFSA) {
+        setStep3Alert('This browser does not support showDirectoryPicker(). Switch to Browser OPFS Staging instead.', true);
+        return null;
+      }
+      try {
+        const handle = await window.showDirectoryPicker({
+          id: 'awesome-os-install',
+          mode: 'readwrite',
+        });
+        if (typeof handle.queryPermission === 'function') {
+          let perm = await handle.queryPermission({ mode: 'readwrite' });
+          if (perm !== 'granted' && typeof handle.requestPermission === 'function') {
+            perm = await handle.requestPermission({ mode: 'readwrite' });
+          }
+          if (perm !== 'granted') {
+            setStep3Alert(`Write permission was not granted for "${handle.name}". Click "Browse Folder…" again and allow editing, or use Browser OPFS Staging.`, true);
+            return null;
+          }
+        }
+        state.pickedDirHandle = handle;
+        state.pickedDirName = handle.name;
+        state.targetMode = 'local';
+        $('mode-local').classList.add('active');
+        $('mode-opfs').classList.remove('active');
+        $('picked-folder-badge').style.color = 'var(--ok)';
+        $('picked-folder-badge').textContent = `✓ Selected: ${handle.name}`;
+        $('btn-browse-folder').textContent = 'Change Folder…';
+        updateWizardUI();
+        return handle;
+      } catch (err) {
+        if (err && err.name === 'AbortError') {
+          setStep3Alert('Folder picker was cancelled. Choose an empty or non-system subfolder (e.g. D:\\AwesomeOS), or select Browser OPFS Staging.');
+        } else {
+          setStep3Alert(`Browser could not open that folder (${err?.message || err}). Note: Chromium blocks system roots like C:\\ or Program Files — pick a normal subfolder like AwesomeOS, or use Browser OPFS Staging.`, true);
+        }
+        return null;
+      }
+    }
 
     function logLine(msg, cls = '') {
       const el = $('install-log');
@@ -805,9 +869,13 @@
       } else if (state.step === 3) {
         renderPreinstallSummary();
         nextBtn.disabled = false;
-        nextBtn.textContent = state.targetMode === 'local'
-          ? 'Choose Folder & Install Awesome-OS'
-          : 'Stage in Browser OPFS & Install';
+        if (state.targetMode === 'local') {
+          nextBtn.textContent = state.pickedDirHandle
+            ? `Install into "${state.pickedDirName}" →`
+            : 'Choose Folder & Install Awesome-OS';
+        } else {
+          nextBtn.textContent = 'Install into Browser OPFS →';
+        }
       } else if (state.step === 4) {
         nextBtn.disabled = true;
         nextBtn.textContent = 'Installing…';
@@ -867,7 +935,7 @@
         <div>Graphics: <strong>${state.advancedGraphics ? 'Wayland + WebGPU + Rootless Xwayland' : 'Headless / Terminal Only'}</strong></div>
         <div>Drivers:  <strong>system://driver-set/${state.driverTrack}</strong></div>
         <div>Apps:     <strong>${apps}</strong></div>
-        <div>Target:   <strong>${state.targetMode === 'local' ? 'User-Selected Local Folder (showDirectoryPicker)' : 'Browser OPFS (opfs://awesome-os-v11)'}</strong></div>
+        <div>Target:   <strong>${state.targetMode === 'local' ? (state.pickedDirName ? `Local Folder: ${state.pickedDirName} (ready)` : 'User-Selected Local Folder (showDirectoryPicker)') : 'Browser OPFS (opfs://awesome-os-v11)'}</strong></div>
       `;
     }
 
@@ -1015,9 +1083,11 @@
     async function runInstall() {
       let dirHandle;
       let targetLabel;
+      setStep3Alert('');
       try {
         if (state.targetMode === 'local') {
-          dirHandle = await window.showDirectoryPicker({ id: 'awesome-os-install', mode: 'readwrite' });
+          dirHandle = state.pickedDirHandle || (await pickLocalFolder());
+          if (!dirHandle) return;
           targetLabel = dirHandle.name;
         } else {
           const root = await navigator.storage.getDirectory();
@@ -1026,8 +1096,7 @@
           state.opfsStaged = true;
         }
       } catch (err) {
-        if (err && err.name === 'AbortError') return;
-        alert(`Could not open target directory: ${err?.message || err}`);
+        setStep3Alert(`Could not open target directory: ${err?.message || err}`, true);
         return;
       }
 
@@ -1118,7 +1187,9 @@
       $('cap-crypto').querySelector('.dot').className = `dot ${window.crypto && crypto.subtle ? 'ok' : 'warn'}`;
 
       if (!state.hasFSA) {
-        $('mode-local').disabled = true;
+        $('mode-local').setAttribute('aria-disabled', 'true');
+        $('mode-local').style.opacity = '0.45';
+        $('btn-browse-folder').disabled = true;
         $('mode-local').classList.remove('active');
         $('mode-opfs').classList.add('active');
         state.targetMode = 'opfs';
@@ -1142,17 +1213,23 @@
     $('opt-advanced-gfx').addEventListener('change', (e) => { state.advancedGraphics = e.target.checked; });
     $('opt-driver-track').addEventListener('change', (e) => { state.driverTrack = e.target.value; });
 
+    $('btn-browse-folder').addEventListener('click', (e) => {
+      e.stopPropagation();
+      pickLocalFolder();
+    });
     $('mode-local').addEventListener('click', () => {
       if (!state.hasFSA) return;
       state.targetMode = 'local';
       $('mode-local').classList.add('active');
       $('mode-opfs').classList.remove('active');
+      setStep3Alert('');
       updateWizardUI();
     });
     $('mode-opfs').addEventListener('click', () => {
       state.targetMode = 'opfs';
       $('mode-opfs').classList.add('active');
       $('mode-local').classList.remove('active');
+      setStep3Alert('');
       updateWizardUI();
     });
 
