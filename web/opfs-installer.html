@@ -1094,8 +1094,35 @@
         '',
       ].join('\n');
 
+      const codeWorkspace = {
+        schema: 'awesome-os.code-workspace.v1',
+        workspaceUri: state.selectedApps.has('colibri')
+          ? 'workspaces://awesome-os/ai-colibri'
+          : 'workspaces://awesome-os/os-dev',
+        profileUri: `system://profile/${state.profileId}`,
+        folders: [
+          { name: 'awesome-os-root', path: '.' },
+          { name: 'manifest', path: './manifest' },
+        ],
+        settings: {
+          'workbench.colorTheme': 'Default Dark Modern',
+          'awesome-os.casLayout': 'v11',
+          'awesome-os.profile': state.profileId,
+          'awesome-os.abiMagic': '0x33564742',
+        },
+      };
+
+      const vscodeMcp = {
+        servers: {
+          'awesome-os': { command: 'holo-host-manager', args: ['mcp'] },
+          ...(state.selectedApps.has('colibri') ? { colibri: { command: 'coli', args: ['mcp'] } } : {}),
+        },
+      };
+
       return [
         { path: 'manifest/system-profile.json', content: JSON.stringify(systemProfile, null, 2) + '\n' },
+        { path: 'awesome-os.code-workspace', content: JSON.stringify(codeWorkspace, null, 2) + '\n' },
+        { path: '.vscode/mcp.json', content: JSON.stringify(vscodeMcp, null, 2) + '\n' },
         { path: 'bootstrap/holo-windows.ps1.txt', content: holoPs1 },
         { path: 'bootstrap/holo-posix.sh.txt', content: holoSh },
         { path: 'README.txt', content: readmeTxt },
