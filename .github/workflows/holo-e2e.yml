@@ -1,0 +1,58 @@
+name: Holo-E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  holo-e2e:
+    uses: awesome-os/maintenance-workflows/.github/workflows/reusable-holo-e2e.yml@v1
+    with:
+      config-path: holo-ci.json
+      holo-ci-ref: v1
+      e2e-command: |
+        node --test test/installer.test.mts
+        node --input-type=module -e "
+          import assert from 'node:assert/strict';
+          import crypto from 'node:crypto';
+          import fs from 'node:fs';
+          import path from 'node:path';
+          const bundlePath = 'web/v11-bundle.json';
+          const bundle = JSON.parse(fs.readFileSync(bundlePath, 'utf8'));
+          assert.equal(bundle.schema, 'awesome-os.web-v11-bundle.v1');
+          assert.equal(bundle.abiMagic, '0x33564742');
+          assert.equal(bundle.casLayout, 'v11');
+          assert.equal(bundle.signature?.scheme, 'ed25519-sha512-v1');
+          function canonicalizeJson(v) {
+            if (v === null || typeof v !== 'object') return JSON.stringify(v);
+            if (Array.isArray(v)) return '[' + v.map(canonicalizeJson).join(',') + ']';
+            const keys = Object.keys(v).filter((k) => k !== 'signature' && v[k] !== undefined).sort();
+            return '{' + keys.map((k) => JSON.stringify(k) + ':' + canonicalizeJson(v[k])).join(',') + '}';
+          }
+          const canonical = canonicalizeJson(bundle);
+          const payloadSha512 = crypto.createHash('sha512').update(canonical, 'utf8').digest('hex');
+          assert.equal(payloadSha512, bundle.signature.payloadSha512);
+          const spki = Buffer.concat([Buffer.from('302a300506032b6570032100', 'hex'), Buffer.from(bundle.signature.publicKeyHex, 'hex')]);
+          const pub = crypto.createPublicKey({ key: spki, format: 'der', type: 'spki' });
+          assert.equal(crypto.verify(null, Buffer.from(canonical, 'utf8'), pub, Buffer.from(bundle.signature.signatureHex, 'hex')), true);
+          const verifiedArtifacts = [];
+          for (const art of bundle.artifacts) {
+            const p = path.join('web', art.url);
+            const buf = fs.readFileSync(p);
+            assert.equal(buf.byteLength, art.bytes);
+            const sha512 = crypto.createHash('sha512').update(buf).digest('hex');
+            assert.equal(sha512, art.sha512);
+            verifiedArtifacts.push({ id: art.id, bytes: buf.byteLength, sha512 });
+          }
+          fs.writeFileSync(
+            process.env.HOLO_E2E_ARTIFACTS + '/bundle-verify.json',
+            JSON.stringify({ ok: true, abiMagic: bundle.abiMagic, keyId: bundle.signature.keyId, payloadSha512, verifiedArtifacts }, null, 2) + '\n'
+          );
+        "
