@@ -1141,6 +1141,17 @@
         await ensureDir(dirHandle, 'cas/v11/links');
 
         const files = buildPayloadFiles(targetLabel);
+        let remoteBlobs = [];
+        try {
+          const resp = await fetch('./v11-bundle.json', { cache: 'no-store' });
+          if (resp.ok) {
+            const bundle = await resp.json();
+            if (Array.isArray(bundle.artifacts)) remoteBlobs = bundle.artifacts;
+          }
+        } catch {
+          logLine('Offline mode: skipping remote ./v11-bundle.json fetch.', 'warn');
+        }
+
         const casIndex = {
           schema: 'awesome-os.v11-cas-index.v1',
           hostname: state.hostname,
@@ -1149,7 +1160,7 @@
           entries: [],
         };
 
-        const total = files.length + 2;
+        const total = files.length + remoteBlobs.length + 2;
         let done = 0;
         for (const f of files) {
           setProgress(Math.round(((done + 0.5) / total) * 100), `Writing & hashing ${f.path}…`);
@@ -1162,6 +1173,25 @@
           done++;
           setProgress(Math.round((done / total) * 100), `Verified ${actualPath}`);
           logLine(`✓ ${actualPath} (${bytes.byteLength} B) → ${casPath.slice(0, 32)}…`, 'ok');
+        }
+
+        for (const blob of remoteBlobs) {
+          setProgress(Math.round(((done + 0.5) / total) * 100), `Downloading ${blob.installPath}…`);
+          const r = await fetch(blob.url);
+          if (!r.ok) throw new Error(`Failed to fetch ${blob.url}: HTTP ${r.status}`);
+          const bytes = new Uint8Array(await r.arrayBuffer());
+          const hash = await sha512Hex(bytes);
+          if (blob.sha512 && hash !== blob.sha512) {
+            throw new Error(`SHA-512 mismatch for ${blob.installPath}: expected ${blob.sha512.slice(0, 16)}, got ${hash.slice(0, 16)}`);
+          }
+          const shard = hash.slice(0, 2);
+          const casPath = `cas/v11/files/${shard}/${hash}`;
+          await writeFileAt(dirHandle, casPath, bytes);
+          const { actualPath } = await writeFileAt(dirHandle, blob.installPath, bytes);
+          casIndex.entries.push({ path: actualPath, casPath, sha512: hash, bytes: bytes.byteLength, sourceUrl: blob.url });
+          done++;
+          setProgress(Math.round((done / total) * 100), `Verified binary ${actualPath}`);
+          logLine(`✓ [NET] ${actualPath} (${bytes.byteLength} B) SHA-512 matched → ${casPath.slice(0, 32)}…`, 'ok');
         }
 
         setProgress(88, 'Writing cas/v11/index.json…');

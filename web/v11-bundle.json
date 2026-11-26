@@ -1,0 +1,32 @@
+{
+  "schema": "awesome-os.web-v11-bundle.v1",
+  "abiMagic": "0x33564742",
+  "casLayout": "v11",
+  "generatedAt": "2026-11-26T07:49:14.483Z",
+  "artifacts": [
+    {
+      "id": "sectium-control-plane-wasi",
+      "url": "./blobs/sectium_cp.wasm",
+      "installPath": "runtime/sectium_cp.wasm",
+      "description": "Collapsed 5.7 KB B8G_ABI_MAGIC_V3 WASI control plane binary",
+      "bytes": 5695,
+      "sha512": "72c02bd267a08323929493c372d9e89e7f56cbe58cc7d0773cb4648a573fc1510168fb086d372565c1eb26365ee74e16a958dd245c6d4705f686f5c80ea0c657"
+    },
+    {
+      "id": "max-version-lock",
+      "url": "./blobs/max-version-lock.json",
+      "installPath": "manifest/max-version-lock.json",
+      "description": "Unified V8 16+ & ahead-of-Chrome dependency version lockfile",
+      "bytes": 13036,
+      "sha512": "d6f588a0f5dce4213a639f9e9ff6521f8cb0f978fc7fa2092d69ae57f8e118c0e1012a64ebbcb550b15ca4d5676f2bbe6f7c0ac84896dff694de4e1b9220b2ce"
+    },
+    {
+      "id": "ecosystem-scoreboard",
+      "url": "./blobs/ECOSYSTEM-SCOREBOARD.md",
+      "installPath": "docs/ECOSYSTEM-SCOREBOARD.md",
+      "description": "Live 9-runtime Big Boys v11 CAS overlap & version scoreboard",
+      "bytes": 1949,
+      "sha512": "f66916b7218091137020aaef9260b197a1310aabcfdc18745f4bdae0aaad5919db7a9ae898065700c426e9f332e7fba844565e4508d6e5ae547afd578117ea03"
+    }
+  ]
+}
