@@ -178,9 +178,10 @@ jobs:
           )
 
           echo "[TAR LIST] ${TAR_NAME}"
-          tar -tzf "${WORK_DIR}/${TAR_NAME}"
-          tar -tzf "${WORK_DIR}/${TAR_NAME}" | grep -qxE '(\./)?holo-devtools-launcher'
-          tar -tzf "${WORK_DIR}/${TAR_NAME}" | grep -qxE '(\./)?libsample_engine_plugin\.so'
+          TAR_LIST="$(tar -tzf "${WORK_DIR}/${TAR_NAME}")"
+          printf '%s\n' "${TAR_LIST}"
+          grep -qxE '(\./)?holo-devtools-launcher' <<< "${TAR_LIST}"
+          grep -qxE '(\./)?libsample_engine_plugin\.so' <<< "${TAR_LIST}"
 
           tar -xzf "${WORK_DIR}/${TAR_NAME}" -C "${EXTRACT_DIR}"
           chmod +x "${EXTRACT_DIR}/holo-devtools-launcher" "${EXTRACT_DIR}/libsample_engine_plugin.so"
