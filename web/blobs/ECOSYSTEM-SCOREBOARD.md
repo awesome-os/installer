@@ -1,8 +1,8 @@
-# Awesome-OS `v11` Ecosystem Scoreboard
+# AwesomeOS `v11` Ecosystem Scoreboard (`v1.0-v11`)
 
-> Auto-updated daily by [`scripts/sync-ecosystem-reports.mts`](../scripts/sync-ecosystem-reports.mts) · Last sync: `2026-11-26T09:55:49.027Z`
+> Auto-updated by [`os/bootstrap/holo-distro-bootstrap.mts`](https://github.com/awesome-os/awesome-os/blob/main/os/bootstrap/holo-distro-bootstrap.mts) · Last sync: `2026-11-26T17:49:58.077Z`
 
-## 1. 9-Runtime Big Boys `v11` CAS Coverage
+## 1. 22-Runtime Big Boys `v11` CAS Coverage
 
 - **Runtimes at 100% Coverage:** **15 / 22**
 - **Standalone Disk Collapsed into 1 Shared `v11` CAS Layer:** **13.987 MB**
@@ -47,5 +47,5 @@
 
 ## 3. Independent Engine & Upstream Package Radar
 
-- **Ladybird Hard-Fork (`awesome-os/ladybird`):** `42` libraries · `752` WebIDL interfaces · `1.348` FIXMEs · `67.35%` dep overlap (`16` libs raised from `v11`).
+- **Ladybird Hard-Fork (`awesome-os/ladybird`):** **`18/18` Chrome Parity Probes Implemented** · `42` libraries · `775` WebIDL interfaces · `67.35%` dep overlap (`17` libs raised from `v11`).
 - **Full Reports:** [`BIG-BOYS-OVERLAP-REPORT.md`](BIG-BOYS-OVERLAP-REPORT.md) · [`LADYBIRD-CHROME-PARITY.md`](LADYBIRD-CHROME-PARITY.md) · [`T2SDE-MODERNIZATION-WISHLIST.md`](T2SDE-MODERNIZATION-WISHLIST.md) · [`max-version-lock.json`](max-version-lock.json) · [`ahead-of-chrome-pins.json`](ahead-of-chrome-pins.json).
