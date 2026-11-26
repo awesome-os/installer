@@ -2,7 +2,7 @@
   "schema": "awesome-os.web-v11-bundle.v1",
   "abiMagic": "0x33564742",
   "casLayout": "v11",
-  "generatedAt": "2026-11-26T21:05:01.224Z",
+  "generatedAt": "2026-11-26T21:39:21.671Z",
   "artifacts": [
     {
       "id": "sectium-control-plane-wasi",
@@ -27,12 +27,12 @@
     {
       "id": "max-version-lock",
       "path": "manifest/max-version-lock.json",
-      "size": 13049,
+      "size": 13072,
       "url": "./blobs/max-version-lock.json",
       "installPath": "manifest/max-version-lock.json",
       "description": "Unified V8 16+ & ahead-of-Chrome dependency version lockfile",
-      "bytes": 13049,
-      "sha512": "24a8f9f2a97fc04a953716fb8e0096a72708f06ffd5a1b30e271c95d5d064a97546da767ee474bf62b62a96c3af0c8340b2e70067dc22bd275fbccf008cfec3e"
+      "bytes": 13072,
+      "sha512": "5696cfd7fb348b3ee8799cc06ba81bf197ddc856faca4d38f79c0039ab4aa078c594115019ce06de619dc1339d27b1e838fa8c900d6d76f0f6a950d8dcd4ef1e"
     },
     {
       "id": "ecosystem-scoreboard",
@@ -49,8 +49,8 @@
     "scheme": "ed25519-sha512-v1",
     "keyId": "awesomeos-root-v11",
     "publicKeyHex": "8706ca1108354453755a32bc0d450a697b084cb5fb18a9a1ed1f4a31eb82a081",
-    "payloadSha512": "11dfdf63508fa7b52b1d59253840f956b7ad2f5b67c71d4317dacce13dbd5c9722b9d7840433ad7ffe6510779fd0e4b27fc5c9a36c95149761be8a7a3db359d6",
-    "signatureHex": "655904d1317542b334b2e6608972bf5571a9d4be5d0fca037443859cbab7346c52863bbeed5ec778cfce0d89aa8ca205a5191beabc7776f60f687760bf54fa0c",
-    "signedAt": "2026-11-26T21:05:01.225Z"
+    "payloadSha512": "4694d4901a5dd1a17df52c89c169eedb195b67853975b04f87c55f0d71158c53bc9fd1105af8849a96148e16e9e29312a7b9d20585f3661beaad335461e01553",
+    "signatureHex": "01441555930439d29cf638301de9ccc53a25b3480de3748600c17cdc43c581ee60db6ca9424bc942fc112cf6e97703ad88c191b552f72366bf103ca3a1ee3f00",
+    "signedAt": "2026-11-26T21:39:21.673Z"
   }
 }
