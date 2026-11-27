@@ -197,10 +197,9 @@ export function checkShellSyntaxIfAvailable(
         '-NoProfile',
         '-NonInteractive',
         '-Command',
-        '$errs = $null; [void][System.Management.Automation.Language.Parser]::ParseFile($args[0], [ref]$null, [ref]$errs); if ($errs.Count -gt 0) { $errs | ForEach-Object { Write-Error $_.Message }; exit 1 }',
-        scriptPath,
+        '$errs = $null; [void][System.Management.Automation.Language.Parser]::ParseFile($env:HOLO_PS1_CHECK_PATH, [ref]$null, [ref]$errs); if ($errs.Count -gt 0) { $errs | ForEach-Object { Write-Error $_.Message }; exit 1 }',
       ],
-      { stdio: 'pipe', shell: false },
+      { stdio: 'pipe', shell: false, env: { ...process.env, HOLO_PS1_CHECK_PATH: scriptPath } },
     );
     return 'checked';
   } catch (err) {
