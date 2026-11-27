@@ -40,6 +40,8 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: '_site'
+      - name: Wait for artifact index propagation
+        run: sleep 8
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
