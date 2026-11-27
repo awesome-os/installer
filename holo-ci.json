@@ -4,6 +4,7 @@
   "kind": "control-plane",
   "tests": [
     "node --test test/installer.test.mts",
+    "node --test scripts/clean-box-e2e.test.mts",
     "node -e \"const fs=require('node:fs'); const b=JSON.parse(fs.readFileSync('web/v11-bundle.json','utf8')); if(b.abiMagic!=='0x33564742') process.exit(1)\""
   ],
   "docs": [
