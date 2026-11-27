@@ -2,7 +2,7 @@
   "schema": "awesome-os.web-v11-bundle.v1",
   "abiMagic": "0x33564742",
   "casLayout": "v11",
-  "generatedAt": "2026-11-27T01:08:22.240Z",
+  "generatedAt": "2026-11-27T09:55:20.560Z",
   "artifacts": [
     {
       "id": "sectium-control-plane-wasi",
@@ -17,12 +17,12 @@
     {
       "id": "awesomeos-chromeos-shell",
       "path": "shell/awesomeos-shell.html",
-      "size": 29706,
+      "size": 33520,
       "url": "./blobs/awesomeos-shell.html",
       "installPath": "shell/awesomeos-shell.html",
       "description": "Zero-server ChromeOS-grade AwesomeOS Desktop Shell (Sectium + Crostini + Powerwash)",
-      "bytes": 29706,
-      "sha512": "90c940e1b279246e1c4193e08dae558563277202f59411e5b9f4c91bb3c28837120bf47e9f1e5e868ebad20e4e94901fb9eb4d8a6df7a5a1016887304020c1eb"
+      "bytes": 33520,
+      "sha512": "d118049e52da82b3e2ec51fa3daeb4c4f182ba217ec995aac91e2d5db8392a88e34ab0f9759d6a3d4606a007493653df28178b24343cecee629809d21b5b091d"
     },
     {
       "id": "max-version-lock",
@@ -32,7 +32,7 @@
       "installPath": "manifest/max-version-lock.json",
       "description": "Unified V8 16+ & ahead-of-Chrome dependency version lockfile",
       "bytes": 13072,
-      "sha512": "5696cfd7fb348b3ee8799cc06ba81bf197ddc856faca4d38f79c0039ab4aa078c594115019ce06de619dc1339d27b1e838fa8c900d6d76f0f6a950d8dcd4ef1e"
+      "sha512": "43eddd6886f58708363cb7584fafe3a60fb3f08053ca2caf48937c8bd82f56e7619d1967da6db357e39abd3c8c8304d134d85def7d8ab389bb6884c1877ca3c9"
     },
     {
       "id": "ecosystem-scoreboard",
@@ -49,8 +49,8 @@
     "scheme": "ed25519-sha512-v1",
     "keyId": "awesomeos-root-v11",
     "publicKeyHex": "8706ca1108354453755a32bc0d450a697b084cb5fb18a9a1ed1f4a31eb82a081",
-    "payloadSha512": "e217c6faf6190080affda2fde85121898684ab8d840638b67604861c2f7c53e965e6c2487e13fa51faca7a600e0ad0025b4bc4c0722bbb79d0cb6f758705c0fa",
-    "signatureHex": "799003c434baca32b96efeff5cf3b183e1df8f638d81b663160aee4e7635364783f9fe57ec6c6467bfcbfa6767e1fd073743e749787825248ef04a6c5d09bf00",
-    "signedAt": "2026-11-27T01:08:22.242Z"
+    "payloadSha512": "f3c259e7d974fa5a7843e32ce3099c01eb133bfebcbb288277e12778b4f4a55a2756cc2cb63ccc86c2cebb0d3b75da3d9969ad4cd9d445c358da14cce7cddd80",
+    "signatureHex": "6c631fcc23e1e5ec828d607ac68b6a19baa566cc2d3866f6cc7c3086154e1572940916547103a32a14cf26112ae9c68664d564b969f02ae7e5e8155517bdce04",
+    "signedAt": "2026-11-27T09:55:20.562Z"
   }
 }
