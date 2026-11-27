@@ -1,11 +1,16 @@
 import assert from 'node:assert/strict';
 import { createHash, generateKeyPairSync, sign } from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import {
   canonicalizeJson,
   findSignedReleaseAssets,
   parseExpectedSha512ForFile,
+  validateInstallerScript,
   validateLauncherOutput,
+  validateSparseDemosCheckout,
   validateTarListing,
   verifyV11BundleSignature,
   type SignedV11Bundle,
@@ -88,5 +93,39 @@ describe('clean-box-e2e helpers', () => {
 
     validateLauncherOutput('B8G ABI magic=0x33564742 loaded=1');
     assert.throws(() => validateLauncherOutput('loaded=0'), /0x33564742/);
+  });
+
+  it('validates install.ps1 / install.sh scripts and rejects HTML 404 bodies', () => {
+    const ps1 = "$ErrorActionPreference = 'Stop'\nWrite-Output 'ok'\n";
+    const ps1Res = validateInstallerScript('ps1', ps1);
+    assert.equal(ps1Res.bytes, Buffer.byteLength(ps1, 'utf8'));
+    assert.match(ps1Res.sha512, /^[0-9a-f]{128}$/);
+
+    const sh = '#!/bin/sh\nset -eu\necho ok\n';
+    const shRes = validateInstallerScript('sh', sh);
+    assert.equal(shRes.bytes, Buffer.byteLength(sh, 'utf8'));
+    assert.match(shRes.sha512, /^[0-9a-f]{128}$/);
+
+    assert.throws(() => validateInstallerScript('ps1', '<!DOCTYPE html><html>404</html>'), /HTML/);
+    assert.throws(() => validateInstallerScript('sh', 'echo missing-guard'), /shebang/);
+  });
+
+  it('validates --no-cone sparse demos checkout layout offline', () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'demos-sparse-unit-'));
+    try {
+      fs.mkdirSync(path.join(tmp, '.git', 'info'), { recursive: true });
+      fs.writeFileSync(path.join(tmp, '.git', 'info', 'sparse-checkout'), '/arch/pdp11/\n', 'utf8');
+      fs.mkdirSync(path.join(tmp, 'arch', 'pdp11'), { recursive: true });
+      fs.writeFileSync(path.join(tmp, 'arch', 'pdp11', 'index.html'), '<h1>pdp11</h1>', 'utf8');
+      fs.writeFileSync(path.join(tmp, 'arch', 'pdp11', 'b8g-pdp11.wasm'), 'wasm', 'utf8');
+
+      const files = validateSparseDemosCheckout(tmp);
+      assert.deepEqual(files, ['b8g-pdp11.wasm', 'index.html']);
+
+      fs.writeFileSync(path.join(tmp, 'README.md'), 'leak', 'utf8');
+      assert.throws(() => validateSparseDemosCheckout(tmp), /--no-cone/);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
   });
 });

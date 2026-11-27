@@ -23,9 +23,15 @@ export const LIVE_ENDPOINTS: readonly string[] = [
   'https://awesome-os.github.io/holo-v11/gravity-telemetry.json',
   'https://awesome-os.github.io/holo-v11/oversight.html',
   'https://awesome-os.github.io/agent-platform/',
+  'https://awesome-os.github.io/demos/',
 ];
 
 export const BUNDLE_URL = 'https://awesome-os.github.io/installer/v11-bundle.json';
+export const INSTALL_PS1_URL = 'https://awesome-os.github.io/installer/install.ps1';
+export const INSTALL_SH_URL = 'https://awesome-os.github.io/installer/install.sh';
+export const INSTALLER_SHA512SUMS_URL = 'https://awesome-os.github.io/installer/SHA512SUMS.txt';
+export const DEMOS_REPO_URL = 'https://github.com/awesome-os/demos.git';
+export const DEMOS_SPARSE_PATH = '/arch/pdp11/';
 export const RELEASE_API_URL =
   'https://api.github.com/repos/awesome-os/awesome-os/releases/tags/v1.0.0';
 export const DEVTOOLS_BASE_URL =
@@ -147,7 +153,91 @@ export function validateLauncherOutput(stdout: string): void {
   assert.ok(stdout.includes('loaded=1'), 'Expected launcher stdout to contain loaded=1');
 }
 
-async function verifyLiveEndpointsAndBundle(ghToken: string | undefined): Promise<void> {
+export function validateInstallerScript(
+  kind: 'ps1' | 'sh',
+  content: string,
+): { sha512: string; bytes: number } {
+  const trimmed = content.trim();
+  assert.ok(trimmed.length > 0, `Empty ${kind} installer script`);
+  assert.equal(
+    /^<!doctype\s+html|^<html/i.test(trimmed),
+    false,
+    `Expected ${kind} script, got HTML document`,
+  );
+  if (kind === 'sh') {
+    assert.ok(
+      /^#!\/(bin\/sh|usr\/bin\/env\s+(ba)?sh)/.test(trimmed) || /\bset\s+-[euo]+/.test(trimmed),
+      'POSIX install.sh missing shebang or set -e guard',
+    );
+  } else {
+    assert.ok(
+      /\$ErrorActionPreference|param\(|Invoke-RestMethod|Invoke-WebRequest|\birm\b/i.test(trimmed),
+      'PowerShell install.ps1 missing PowerShell installer markers',
+    );
+  }
+  const buf = Buffer.from(content, 'utf8');
+  return {
+    sha512: createHash('sha512').update(buf).digest('hex'),
+    bytes: buf.byteLength,
+  };
+}
+
+export function checkShellSyntaxIfAvailable(
+  kind: 'ps1' | 'sh',
+  scriptPath: string,
+): 'checked' | 'skipped' {
+  try {
+    if (kind === 'sh') {
+      execFileSync('sh', ['-n', scriptPath], { stdio: 'pipe', shell: false });
+      return 'checked';
+    }
+    execFileSync(
+      'pwsh',
+      [
+        '-NoProfile',
+        '-NonInteractive',
+        '-Command',
+        '$errs = $null; [void][System.Management.Automation.Language.Parser]::ParseFile($args[0], [ref]$null, [ref]$errs); if ($errs.Count -gt 0) { $errs | ForEach-Object { Write-Error $_.Message }; exit 1 }',
+        scriptPath,
+      ],
+      { stdio: 'pipe', shell: false },
+    );
+    return 'checked';
+  } catch (err) {
+    if (err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') {
+      return 'skipped';
+    }
+    throw err;
+  }
+}
+
+export function validateSparseDemosCheckout(
+  repoDir: string,
+  sparsePath = DEMOS_SPARSE_PATH,
+): string[] {
+  const sparseFile = path.join(repoDir, '.git', 'info', 'sparse-checkout');
+  assert.ok(fs.existsSync(sparseFile), 'Missing .git/info/sparse-checkout');
+  const sparseRules = fs.readFileSync(sparseFile, 'utf8');
+  assert.ok(
+    sparseRules.includes(sparsePath),
+    `Expected sparse-checkout to include ${sparsePath}, got: ${sparseRules.trim()}`,
+  );
+
+  const relDir = sparsePath.replace(/^\/+|\/+$/g, '');
+  const targetDir = path.join(repoDir, relDir);
+  assert.ok(fs.existsSync(targetDir), `Expected sparse directory ${relDir} to exist`);
+  const files = fs.readdirSync(targetDir).sort();
+  assert.ok(files.length > 0, `Sparse directory ${relDir} is empty`);
+  assert.ok(files.includes('index.html'), `Expected index.html in ${relDir}`);
+  assert.equal(
+    fs.existsSync(path.join(repoDir, 'README.md')),
+    false,
+    'Root README.md should not be materialized under --no-cone sparse checkout',
+  );
+  return files;
+}
+
+async function verifyLiveEndpointsAndBundle(): Promise<SignedV11Bundle> {
   for (const url of LIVE_ENDPOINTS) {
     const res = await fetch(url, { cache: 'no-store' });
     assert.equal(res.status, 200, `Expected HTTP 200 for ${url}, got ${res.status}`);
@@ -181,12 +271,7 @@ async function verifyLiveEndpointsAndBundle(ghToken: string | undefined): Promis
     'User-Agent': 'awesome-os-clean-box-stranger-e2e',
     Accept: 'application/vnd.github+json',
   };
-  let relRes = await fetch(RELEASE_API_URL, {
-    headers: ghToken ? { ...baseHeaders, Authorization: `Bearer ${ghToken}` } : baseHeaders,
-  });
-  if ((relRes.status === 401 || relRes.status === 403) && ghToken) {
-    relRes = await fetch(RELEASE_API_URL, { headers: baseHeaders });
-  }
+  const relRes = await fetch(RELEASE_API_URL, { headers: baseHeaders });
   assert.equal(relRes.status, 200, `Expected HTTP 200 for ${RELEASE_API_URL}, got ${relRes.status}`);
   const release = (await relRes.json()) as { assets?: ReleaseAsset[] };
   assert.ok(Array.isArray(release.assets) && release.assets.length > 0, 'v1.0.0 release has no assets');
@@ -203,6 +288,96 @@ async function verifyLiveEndpointsAndBundle(ghToken: string | undefined): Promis
   console.log(
     `[RELEASE OK] v1.0.0 totalAssets=${release.assets.length} signedAssets=${signedAssets.length} sha512SumsLines=${sumsLines.length}`,
   );
+  return bundle;
+}
+
+async function verifyRemoteInstallers(
+  bundle: SignedV11Bundle,
+  strictInstallers: boolean,
+): Promise<void> {
+  let sumsText: string | undefined;
+  const sumsRes = await fetch(INSTALLER_SHA512SUMS_URL, { cache: 'no-store' });
+  if (sumsRes.status === 200) {
+    sumsText = await sumsRes.text();
+  }
+
+  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'holo-installer-syntax-'));
+  try {
+    const targets: ReadonlyArray<{ kind: 'ps1' | 'sh'; url: string; fileName: string }> = [
+      { kind: 'ps1', url: INSTALL_PS1_URL, fileName: 'install.ps1' },
+      { kind: 'sh', url: INSTALL_SH_URL, fileName: 'install.sh' },
+    ];
+    for (const target of targets) {
+      const res = await fetch(target.url, { cache: 'no-store' });
+      if (res.status === 404 && !strictInstallers) {
+        console.log(`[PENDING 404] ${target.url} (not yet published to Pages)`);
+        continue;
+      }
+      assert.equal(res.status, 200, `Expected HTTP 200 for ${target.url}, got ${res.status}`);
+      const content = await res.text();
+      const { sha512, bytes } = validateInstallerScript(target.kind, content);
+
+      if (sumsText) {
+        const expected = parseExpectedSha512ForFile(sumsText, target.fileName);
+        assert.equal(sha512, expected, `SHA-512 mismatch for ${target.fileName}`);
+      } else {
+        const bundleArt = bundle.artifacts.find(
+          (a) => a.id === target.fileName || a.url.endsWith(`/${target.fileName}`),
+        );
+        if (bundleArt) {
+          assert.equal(sha512, bundleArt.sha512, `Bundle SHA-512 mismatch for ${target.fileName}`);
+        }
+      }
+
+      const localPath = path.join(workDir, target.fileName);
+      fs.writeFileSync(localPath, content, 'utf8');
+      const syntaxStatus = checkShellSyntaxIfAvailable(target.kind, localPath);
+      console.log(
+        `[INSTALLER OK] ${target.fileName} (${bytes} B) syntax=${syntaxStatus} sha512=${sha512.slice(0, 16)}...`,
+      );
+    }
+  } finally {
+    fs.rmSync(workDir, { recursive: true, force: true });
+  }
+}
+
+function verifyDemosSparseNoConeSmoke(): void {
+  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'holo-demos-sparse-'));
+  const gitEnv = { ...process.env, GIT_TERMINAL_PROMPT: '0' };
+  try {
+    execFileSync(
+      'git',
+      [
+        'clone',
+        '--depth=1',
+        '--filter=blob:none',
+        '--no-checkout',
+        '--sparse',
+        DEMOS_REPO_URL,
+        workDir,
+      ],
+      { env: gitEnv, stdio: 'pipe', shell: false },
+    );
+    execFileSync('git', ['-C', workDir, 'sparse-checkout', 'init', '--no-cone'], {
+      env: gitEnv,
+      stdio: 'pipe',
+      shell: false,
+    });
+    execFileSync('git', ['-C', workDir, 'sparse-checkout', 'set', DEMOS_SPARSE_PATH], {
+      env: gitEnv,
+      stdio: 'pipe',
+      shell: false,
+    });
+    execFileSync('git', ['-C', workDir, 'checkout', 'main'], {
+      env: gitEnv,
+      stdio: 'pipe',
+      shell: false,
+    });
+    const files = validateSparseDemosCheckout(workDir, DEMOS_SPARSE_PATH);
+    console.log(`[DEMOS SPARSE OK] --no-cone ${DEMOS_SPARSE_PATH} files=${files.join(', ')}`);
+  } finally {
+    fs.rmSync(workDir, { recursive: true, force: true });
+  }
 }
 
 async function verifyLinuxBinaryExecution(): Promise<void> {
@@ -257,7 +432,9 @@ async function verifyLinuxBinaryExecution(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  await verifyLiveEndpointsAndBundle(process.env.GH_TOKEN);
+  const bundle = await verifyLiveEndpointsAndBundle();
+  await verifyRemoteInstallers(bundle, process.argv.includes('--strict-installers'));
+  verifyDemosSparseNoConeSmoke();
   if (process.platform === 'linux' || process.argv.includes('--run-linux-binary')) {
     await verifyLinuxBinaryExecution();
   }

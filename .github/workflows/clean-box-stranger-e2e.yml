@@ -2,7 +2,7 @@ name: Clean-Box Stranger E2E
 
 on:
   schedule:
-    - cron: '0 5 * * *'
+    - cron: '0 */6 * * *'
   push:
     branches: [main]
   workflow_dispatch: {}
@@ -28,7 +28,5 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
-      - name: Run Clean-Box Stranger E2E harness
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Run Clean-Box Stranger E2E harness (zero-auth)
         run: node scripts/clean-box-e2e.mts
