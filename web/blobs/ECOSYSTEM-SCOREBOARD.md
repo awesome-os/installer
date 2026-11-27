@@ -1,3 +1,5 @@
+<!-- DOC-STATIC-CORPUS -->
+
 # AwesomeOS `v11` Ecosystem Scoreboard (`v1.0-v11`)
 
 > Auto-updated by [`os/bootstrap/holo-distro-bootstrap.mts`](https://github.com/awesome-os/awesome-os/blob/main/os/bootstrap/holo-distro-bootstrap.mts) · Last sync: `2026-11-26T20:33:19.952Z`
