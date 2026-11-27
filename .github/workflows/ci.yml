@@ -23,7 +23,7 @@ jobs:
 
       - name: Stamp full Awesome-OS web + GitHub installer catalog
         run: |
-          node src/cli.mts stamp --out ./dist-web --web-host https://awesome-os.com/downloads
+          node src/cli.mts stamp --out ./dist-web --web-host https://awesome-os.github.io/installer/downloads
           sh -n dist-web/sectium-browser/install.sh
           ls -la dist-web/
 
@@ -37,4 +37,4 @@ jobs:
           sha256sum "awesome-os-installer-catalog-${TAG}.tar.zst" > SHA256SUMS.txt
           gh release create "$TAG" "awesome-os-installer-catalog-${TAG}.tar.zst" SHA256SUMS.txt \
             --title "@awesome-os/installer ${TAG}" \
-            --notes "Unified declarative .mts installer & pixel-aligned Lumi splash stamper for GitHub Releases and awesome-os.com static hosting."
+            --notes "Unified declarative .mts installer & pixel-aligned Lumi splash stamper for GitHub Releases and awesome-os.github.io static hosting."

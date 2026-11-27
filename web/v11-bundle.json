@@ -2,7 +2,7 @@
   "schema": "awesome-os.web-v11-bundle.v1",
   "abiMagic": "0x33564742",
   "casLayout": "v11",
-  "generatedAt": "2026-11-27T00:25:39.365Z",
+  "generatedAt": "2026-11-27T01:05:55.456Z",
   "artifacts": [
     {
       "id": "sectium-control-plane-wasi",
@@ -17,12 +17,12 @@
     {
       "id": "awesomeos-chromeos-shell",
       "path": "shell/awesomeos-shell.html",
-      "size": 29688,
+      "size": 29706,
       "url": "./blobs/awesomeos-shell.html",
       "installPath": "shell/awesomeos-shell.html",
       "description": "Zero-server ChromeOS-grade AwesomeOS Desktop Shell (Sectium + Crostini + Powerwash)",
-      "bytes": 29688,
-      "sha512": "2e84f4dd1a6ed40cf91b41a189956c17e5f88e7088ccc96dc22466cad9ffdb62eff50ad775c026be3ca3a6077a5251e3c890a8ff13017bc9e1796181ef4148e4"
+      "bytes": 29706,
+      "sha512": "90c940e1b279246e1c4193e08dae558563277202f59411e5b9f4c91bb3c28837120bf47e9f1e5e868ebad20e4e94901fb9eb4d8a6df7a5a1016887304020c1eb"
     },
     {
       "id": "max-version-lock",
@@ -49,8 +49,8 @@
     "scheme": "ed25519-sha512-v1",
     "keyId": "awesomeos-root-v11",
     "publicKeyHex": "8706ca1108354453755a32bc0d450a697b084cb5fb18a9a1ed1f4a31eb82a081",
-    "payloadSha512": "2fcfc824493e9bd3f81cc6ae7fe6c14c280a50e236e642469a25390586ef799bab617944dfc6f5b84fa7b94596f1be1bf38ebf1a1aec35d69b19022b3aaeda5f",
-    "signatureHex": "787723650df0884f5404b128dd9c1f9658863a85f3c6adca794ab89985ecec9890ecba7ab77221892c4397a7557c70f3fed232b2aee61c34703bbff96211750f",
-    "signedAt": "2026-11-27T00:25:39.369Z"
+    "payloadSha512": "8dcd646fa432601ff75119caf769971dd8c49e40bf4c00c1a8b801f7e4b0ac11eebd5fd9aa3f8bffaeba21c5cf330426cbebc8056d3e8eb358e9da0ce0455c98",
+    "signatureHex": "f845e1b8d3213505d1eedcc86993119cef5ec08c97503d101eb3cafbf2f7242816382c98e64e107ee0ce3f68e4062f3e6c9d076b820b51ec0bfd38faf4c54906",
+    "signedAt": "2026-11-27T01:05:55.458Z"
   }
 }

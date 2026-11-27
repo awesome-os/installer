@@ -33,13 +33,13 @@ jobs:
           import assert from 'node:assert/strict';
           import { createHash, createPublicKey, verify } from 'node:crypto';
 
-          // 1. Live HTTP 200 checks across awesome-os.com & b8g.dev
+          // 1. Live HTTP 200 checks across awesome-os.github.io
           const liveUrls = [
-            'https://awesome-os.com/install/',
-            'https://awesome-os.com/install/v11-bundle.json',
-            'https://b8g.dev/awesome-os/apps/gravity-telemetry.json',
-            'https://b8g.dev/awesome-os/apps/oversight.html',
-            'https://b8g.dev/awesome-os/apps/agent-platform.html',
+            'https://awesome-os.github.io/installer/',
+            'https://awesome-os.github.io/installer/v11-bundle.json',
+            'https://awesome-os.github.io/holo-v11/gravity-telemetry.json',
+            'https://awesome-os.github.io/holo-v11/oversight.html',
+            'https://awesome-os.github.io/agent-platform/',
           ];
 
           for (const url of liveUrls) {
@@ -51,7 +51,7 @@ jobs:
           }
 
           // 2. Canonicalize v11-bundle.json, verify Ed25519 signature + payloadSha512, and verify every artifact SHA-512
-          const bundleUrl = 'https://awesome-os.com/install/v11-bundle.json';
+          const bundleUrl = 'https://awesome-os.github.io/installer/v11-bundle.json';
           const bundleRes = await fetch(bundleUrl, { cache: 'no-store' });
           assert.equal(bundleRes.status, 200, `Expected HTTP 200 for ${bundleUrl}`);
           const bundle = await bundleRes.json();
