@@ -1,0 +1,25 @@
+{
+  "schema": "holo-boundary.v1",
+  "plane": 5,
+  "publicEntrypoints": [
+    "src/index.mts",
+    "src/cli.mts",
+    "catalog/awesome-os-apps.mts",
+    "scripts/build-web-bundle.mts"
+  ],
+  "includePaths": [
+    "catalog",
+    "scripts",
+    "src"
+  ],
+  "abiGoldenFiles": [
+    "web/v11-bundle.json"
+  ],
+  "forbiddenImports": [
+    "intersections/sectium-browser",
+    "../../packages/",
+    "../../sections/"
+  ],
+  "maxParentTraversals": 2,
+  "scanSourceHttpIpc": true
+}

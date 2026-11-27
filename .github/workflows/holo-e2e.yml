@@ -17,6 +17,7 @@ jobs:
     with:
       config-path: holo-ci.json
       holo-ci-ref: v1
+      runner-tier: lite
       e2e-command: |
         node --test test/installer.test.mts
         node --input-type=module -e "
