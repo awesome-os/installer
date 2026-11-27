@@ -6,7 +6,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { signManifestEd25519 } from '../../awesome-os/security/verified-boot.mts';
 
@@ -58,8 +58,11 @@ mkdirSync(BLOBS_DIR, { recursive: true });
 const artifacts = SOURCES.map((s) => {
   const dst = join(BLOBS_DIR, s.fileName);
   mkdirSync(dirname(dst), { recursive: true });
-  copyFileSync(s.srcPath, dst);
-  const buf = readFileSync(dst);
+  let buf = readFileSync(s.srcPath);
+  if (/\.(md|txt|json|html|ps1|sh)$/i.test(s.fileName)) {
+    buf = Buffer.from(buf.toString('utf8').replace(/\r\n/g, '\n'), 'utf8');
+  }
+  writeFileSync(dst, buf);
   const sha512 = createHash('sha512').update(buf).digest('hex');
   return {
     id: s.id,
