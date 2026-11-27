@@ -2,7 +2,7 @@
   "schema": "awesome-os.web-v11-bundle.v1",
   "abiMagic": "0x33564742",
   "casLayout": "v11",
-  "generatedAt": "2026-11-26T21:39:21.671Z",
+  "generatedAt": "2026-11-27T00:25:39.365Z",
   "artifacts": [
     {
       "id": "sectium-control-plane-wasi",
@@ -49,8 +49,8 @@
     "scheme": "ed25519-sha512-v1",
     "keyId": "awesomeos-root-v11",
     "publicKeyHex": "8706ca1108354453755a32bc0d450a697b084cb5fb18a9a1ed1f4a31eb82a081",
-    "payloadSha512": "4694d4901a5dd1a17df52c89c169eedb195b67853975b04f87c55f0d71158c53bc9fd1105af8849a96148e16e9e29312a7b9d20585f3661beaad335461e01553",
-    "signatureHex": "01441555930439d29cf638301de9ccc53a25b3480de3748600c17cdc43c581ee60db6ca9424bc942fc112cf6e97703ad88c191b552f72366bf103ca3a1ee3f00",
-    "signedAt": "2026-11-26T21:39:21.673Z"
+    "payloadSha512": "2fcfc824493e9bd3f81cc6ae7fe6c14c280a50e236e642469a25390586ef799bab617944dfc6f5b84fa7b94596f1be1bf38ebf1a1aec35d69b19022b3aaeda5f",
+    "signatureHex": "787723650df0884f5404b128dd9c1f9658863a85f3c6adca794ab89985ecec9890ecba7ab77221892c4397a7557c70f3fed232b2aee61c34703bbff96211750f",
+    "signedAt": "2026-11-27T00:25:39.369Z"
   }
 }
