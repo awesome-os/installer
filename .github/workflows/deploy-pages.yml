@@ -25,17 +25,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Ensure index.html entrypoint in web/
+      - name: Stage _site for GitHub Pages
         run: |
-          if [ ! -f web/index.html ] && [ -f web/opfs-installer.html ]; then
-            cp web/opfs-installer.html web/index.html
+          rm -rf _site
+          mkdir -p _site
+          cp -r web/. _site/
+          if [ ! -f _site/index.html ] && [ -f _site/opfs-installer.html ]; then
+            cp _site/opfs-installer.html _site/index.html
           fi
+          (cd _site && sha512sum install.ps1 install.sh > SHA512SUMS.txt)
       - name: Setup Pages
         uses: actions/configure-pages@v6
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: 'web'
+          path: '_site'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
